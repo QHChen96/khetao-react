@@ -1,0 +1,45 @@
+.skuPropWarp {
+  
+  .skuProp:global(.ant-input) {
+    width: 20%;
+  }
+  .skuPropDel {
+    display: none;
+    font-size: 16px;
+    color: #999;
+    float: right;
+    margin: 12px 20px auto;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  &:hover .skuPropDel {
+    display: inline-block;
+  }
+}
+.skuPropItem {
+  display: inline-block;
+  width: 20%;
+  margin-right: 6px;
+  &:last-child {
+    margin-right: 0px;
+  }
+  .skuPropWrap {
+    position: relative;
+    .skuPropValDel {
+      position: absolute;
+      top: -3px;
+      right: -6px;
+      font-size: 16px;
+      background-color: white;
+      color: #999;
+      display: none;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+    &:hover .skuPropValDel {
+      display: block;
+    }
+  }
+}
