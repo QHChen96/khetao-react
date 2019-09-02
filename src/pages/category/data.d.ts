@@ -1,12 +1,12 @@
 import { UploadFile } from "antd/lib/upload/interface";
 
 export interface Category {
-  id?: number | string;
+  id: number | string;
   cateName: string;
   imageUrls: UploadFile[];
   i18n?: string;
   level: number;
-  parentId?: number;
+  parentId: number | string;
   parentIds?: string;
   priority: number;
   children?: Category[];

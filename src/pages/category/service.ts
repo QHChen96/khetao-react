@@ -26,6 +26,15 @@ export async function queryCategory(params: CategoryListParams) {
   return {
     list: [
       {
+        id: 0,
+        cateName: '主营分类',
+        priority: 10,
+        i18n: 'main',
+        level: 0,
+        imageUrls: [],
+        parentId: -1
+      },
+      {
         id: 1,
         cateName: '衣服',
         priority: 10,

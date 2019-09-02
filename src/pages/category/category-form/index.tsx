@@ -1,11 +1,15 @@
-import { Form, Icon, Modal, Input, InputNumber, Button, message } from "antd";
+import { Form, Icon, Modal, Input, InputNumber, Button, message, TreeSelect } from "antd";
 import React, { Component, PureComponent } from 'react';
 import Upload, { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { Category } from "../data";
 import { FormComponentProps } from "antd/es/form";
 
-import { isEqual } from "lodash";
+import { isEqual, map } from "lodash";
+import { TreeNode } from "antd/lib/tree-select";
+import { TreeDataSimpleMode, TreeNodeSimpleMode } from "antd/lib/tree-select/interface";
+
+
 
 
 const formItemLayout = {
@@ -30,10 +34,10 @@ interface BasicCategoryFormProps extends FormComponentProps {
   handleUpdate: (value: Partial<Category>) => void;
   className?: string;
   currentCate: Partial<Category>;
+  parentList: Category[];
 }
 
-
-class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryFormProps> {
+class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryFormState> {
 
   static getDerivedStateFromProps(nextProps: BasicCategoryFormProps, prevState: BasicCategoryFormState) {
     if (isEqual(nextProps.currentCate, prevState.currentCate)) {
@@ -126,17 +130,45 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
 
 
   render() {
+    console.log('cate');
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { previewVisible, previewImage, currentCate } = this.state;
+    const { previewVisible, previewImage } = this.state;
+    const { currentCate, parentList } = this.props;
+
+    let treeData:Array<TreeNode> = [];
+    if (parentList && parentList.length > 0) {
+      treeData = map(parentList, cate => {
+        return {
+          value: cate.id,
+          parentId: cate.parentId,
+          title: cate.cateName,
+          level: cate.level
+        }
+      });
+    }
+
     return (
       <Form {...formItemLayout} >
         <Form.Item
-          key="parentName"
+          key="parentId"
           label="上级分类"
         >
           {
-            getFieldDecorator('parentName')(
-              <Input readOnly />
+            getFieldDecorator('parentId', {
+              rules: [
+                {
+                  required: true
+                }
+              ],
+              initialValue: currentCate.parentId
+            })(
+              <TreeSelect
+                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                treeData={treeData}
+                treeDataSimpleMode={{id: "value", pId: "parentId"}}
+                placeholder="Please select"
+                treeDefaultExpandAll
+              />
             )
           }
         </Form.Item>

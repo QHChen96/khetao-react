@@ -10,7 +10,7 @@ import arrayToTree from 'array-to-tree';
 import CategoryForm from './category-form';
 import { StateType } from './model';
 
-import { sortBy, find } from 'lodash';
+import { sortBy, find, filter } from 'lodash';
 
 
 
@@ -20,7 +20,8 @@ class CateColumn extends Table.Column<Category> {}
 
 interface CategoryState {
   maxLevel: number;
-  currentCate?: Category
+  currentCate: Partial<Category>;
+  parentList: Array<Partial<Category>>;
 }
 
 interface CategoryProps {
@@ -46,27 +47,51 @@ class CategoryList extends Component<
   CategoryProps,
   CategoryState
 > {
-  state: CategoryState = {
+  maxLevel = 3;
+  state = {
     maxLevel: 3,
-  };
+    currentCate: {},
+    parentList: []
+  }
 
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
       type: 'categoryList/fetch',
-    })
+    });
+  }
+
+  componentDidUpdate() {
+    console.log("update");
+  }
+
+  createNewCate = (e: React.MouseEvent ,parentId: number|string) => {
+    e.preventDefault();
+    const { data: { list } } = this.props.categoryList;
+    const parentList = filter(list, ele => ele.level < this.maxLevel);
+    this.setState({
+      currentCate: { parentId: parentId },
+      parentList: parentList,
+    });
   }
 
   handleEditCate = (id?: number | string) => {
     if (!id) {
+      
       return;
     }
-    const cate = find(this.props.categoryList.data.list, ele => ele.id === id);
+    const { data: { list } } = this.props.categoryList;
+    if (!list || list.length === 0) {
+      return;
+    }
+    const cate = find(list, ele => ele.id === id);
     if (!cate) {
       return;
     }
+    const parentList = filter(list, ele => ele.level < this.maxLevel && ele.id != cate.id);
     this.setState({
-      currentCate: cate
+      currentCate: cate,
+      parentList: parentList,
     });
   }
 
@@ -79,24 +104,31 @@ class CategoryList extends Component<
   }
 
   render() {
+    console.log('render');
     const { 
-      categoryList: { data }, 
+      categoryList: { data },
       loading 
     } = this.props;
-    const { maxLevel, currentCate } = this.state;
-
-    const datasource = arrayToTree(sortBy(data.list, ele => -ele.priority), {
-      parentProperty: 'parentId',
-      customID: 'id'
-    })
-
+    const { currentCate={}, parentList=[] } = this.state;
+    let datasource: Category[] = [];
+    if (data && data.list) {
+      const flist:Category[] = data.list.filter(e => e.parentId >= 0);
+      datasource = arrayToTree(
+        sortBy(flist, ele => -ele.priority), {
+          parentProperty: 'parentId',
+          customID: 'id'
+      });
+    }
     return (
       <GridContent>
         <Row gutter={24}>
           <Col lg={16} md={24}>
            
             <Card bordered={false} loading={loading}>
-              <Button type="primary" style={{ marginBottom: 16 }}>
+              <Button 
+                type="primary" 
+                style={{ marginBottom: 16 }}
+                onClick={ (e) => this.createNewCate(e, 0) }>
                 添加分类
               </Button>
               {!loading ? (
@@ -116,7 +148,11 @@ class CategoryList extends Component<
                   <CateColumn align="center" key="operation" title="操作" dataIndex="operation" 
                     render={(text, record, index) =>
                       (<span>
-                        <Button size="small" type="link" disabled={ record.level >= maxLevel }>添加</Button>
+                        <Button 
+                          size="small" 
+                          type="link" 
+                          disabled={ record.level >= this.maxLevel }
+                          onClick={ (e) => this.createNewCate(e, record.id as number) }>添加</Button>
                         <Button size="small" type="link" onClick={() => this.handleEditCate(record.id)}>编辑</Button>
                         <Button size="small" type="link">删除</Button>
                       </span>)
@@ -132,7 +168,8 @@ class CategoryList extends Component<
                 currentCate && (
                   <CategoryForm 
                     currentCate={ currentCate }
-                    handleUpdate={ this.handleUpdateCate }></CategoryForm>
+                    handleUpdate={ this.handleUpdateCate }
+                    parentList={ parentList }></CategoryForm>
                 )
               }
             </Card>
