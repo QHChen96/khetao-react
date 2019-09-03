@@ -1,5 +1,5 @@
 import { Form, Icon, Modal, Input, InputNumber, Button, message, TreeSelect } from "antd";
-import React, { Component, PureComponent } from 'react';
+import React, { Component } from 'react';
 import Upload, { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { Category } from "../data";
@@ -7,7 +7,6 @@ import { FormComponentProps } from "antd/es/form";
 
 import { isEqual, map } from "lodash";
 import { TreeNode } from "antd/lib/tree-select";
-import { TreeDataSimpleMode, TreeNodeSimpleMode } from "antd/lib/tree-select/interface";
 
 
 
@@ -163,10 +162,11 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
               initialValue: currentCate.parentId
             })(
               <TreeSelect
+                disabled={true}
                 dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                 treeData={treeData}
                 treeDataSimpleMode={{id: "value", pId: "parentId"}}
-                placeholder="Please select"
+                placeholder="请选择分类"
                 treeDefaultExpandAll
               />
             )
@@ -259,7 +259,7 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
           </Modal>
         </Form.Item>
 
-        <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
+        <Form.Item wrapperCol={{ span: 12, offset: 8 }}>
           <Button type="primary" onClick={this.handleSubmit}>
             保存
           </Button>

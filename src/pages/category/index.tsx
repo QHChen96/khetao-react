@@ -1,4 +1,4 @@
-import { Row, Col, Card, Table, Button, Avatar } from 'antd';
+import { Row, Col, Card, Table, Button, Avatar, message, Icon, Popconfirm } from 'antd';
 import React, { Component } from 'react';
 
 import { GridContent } from '@ant-design/pro-layout';
@@ -11,9 +11,6 @@ import CategoryForm from './category-form';
 import { StateType } from './model';
 
 import { sortBy, find, filter } from 'lodash';
-
-
-
 
 class CateTable extends Table<Category> {}
 class CateColumn extends Table.Column<Category> {}
@@ -65,7 +62,7 @@ class CategoryList extends Component<
     console.log("update");
   }
 
-  createNewCate = (e: React.MouseEvent ,parentId: number|string) => {
+  createNewCate = (e: React.MouseEvent<HTMLElement>, parentId: number|string) => {
     e.preventDefault();
     const { data: { list } } = this.props.categoryList;
     const parentList = filter(list, ele => ele.level < this.maxLevel);
@@ -75,9 +72,29 @@ class CategoryList extends Component<
     });
   }
 
-  handleEditCate = (id?: number | string) => {
+  handleDelete = (e: React.MouseEvent<HTMLElement>, record: Category) => {
+    e.preventDefault();
+    const id = record.id;
     if (!id) {
-      
+      return;
+    }
+    console.log(record);
+    const isParent = record.children && record.children.length > 0;
+    if (isParent) {
+      message.error('请删除子类后再试!');
+      return;
+    } 
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'categoryList/delete',
+      payload: id
+    });
+  }
+
+  handleEditCate = (e: React.MouseEvent<HTMLElement>, record: Category) => {
+    e.preventDefault();
+    const id = record.id;
+    if (!id) {
       return;
     }
     const { data: { list } } = this.props.categoryList;
@@ -135,6 +152,7 @@ class CategoryList extends Component<
                 <CateTable 
                   dataSource={datasource} 
                   rowKey="id"
+                  
                 >
                   <CateColumn key="id" title="ID" dataIndex="id"/>
                   <CateColumn key="imageUrls" title="图标" dataIndex="imageUrls" render={
@@ -153,8 +171,14 @@ class CategoryList extends Component<
                           type="link" 
                           disabled={ record.level >= this.maxLevel }
                           onClick={ (e) => this.createNewCate(e, record.id as number) }>添加</Button>
-                        <Button size="small" type="link" onClick={() => this.handleEditCate(record.id)}>编辑</Button>
-                        <Button size="small" type="link">删除</Button>
+                        <Button size="small" type="link" onClick={(e) => this.handleEditCate(e, record)}>编辑</Button>
+                        <Popconfirm
+                          title="确认要删除吗？"
+                          icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+                          onConfirm={e => this.handleDelete(e as React.MouseEvent<HTMLElement>, record)}
+                        >
+                          <Button size="small" type="link">删除</Button>
+                        </Popconfirm>
                       </span>)
                     }
                   />

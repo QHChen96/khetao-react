@@ -325,6 +325,11 @@ export default {
               path: '/shop',
               routes: [
                 {
+                  name: 'shop-manager',
+                  path: '/shop/manager',
+                  component: './shop/manager',
+                },
+                {
                   name: 'shop-center',
                   path: '/shop/center',
                   component: './shop/center',

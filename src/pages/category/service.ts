@@ -6,6 +6,13 @@ export async function refreshCategory() {
   return request('/');
 }
 
+export async function delCategory(id: number) {
+  return {
+    code: 200,
+    msg: "SUCCESS"
+  }
+}
+
 export async function saveCategory(category: Category) {
   if (category.id) {
     return {

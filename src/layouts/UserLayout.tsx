@@ -56,7 +56,7 @@ const UserLayout: React.SFC<UserLayoutProps> = props => {
                 <span className={styles.title}>KHETAO</span>
               </Link>
             </div>
-            <div className={styles.desc}>Khetao 高效的电商管理系统</div>
+            <div className={styles.desc}>KHETAO 高效的电商管理系统</div>
           </div>
           {children}
         </div>
