@@ -7,7 +7,8 @@ import { DefaultSettings as SettingModelState } from '../../config/defaultSettin
 import { UserModelState } from './user';
 import { ShopModelState } from './shop';
 
-export { GlobalModelState, SettingModelState, UserModelState };
+
+export { GlobalModelState, SettingModelState, UserModelState, ShopModelState };
 
 export interface Loading {
   global: boolean;

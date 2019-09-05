@@ -4,6 +4,7 @@ export default {
   'menu.home': '首页',
   'menu.login': '登录',
   'menu.shop': '店铺',
+  'menu.shop.shop-settings': '店铺设置',
   'menu.shop.shop-manager': '店铺管理',
   'menu.shop.shop-list': '店铺列表',
   'menu.shop.shop-center': '店铺中心',

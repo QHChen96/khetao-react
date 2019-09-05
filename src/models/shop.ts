@@ -1,8 +1,9 @@
 import { Effect } from 'dva';
 import { Reducer } from "redux";
-import { query, queryCurrent } from '@/services/shop';
+
 
 import { find } from "lodash";
+import { query,queryCurrent } from '@/services/shop';
 
 export interface CurrentShop {
   id?: string|number;
@@ -11,7 +12,6 @@ export interface CurrentShop {
   title?: string;
   signature?: string;
 }
-
 
 export interface ShopModelState {
   currentShop?: CurrentShop;

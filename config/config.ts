@@ -325,6 +325,11 @@ export default {
               path: '/shop',
               routes: [
                 {
+                  name: 'shop-settings',
+                  path: '/shop/settings',
+                  component: './shop/settings',
+                },
+                {
                   name: 'shop-manager',
                   path: '/shop/manager',
                   component: './shop/manager',

@@ -147,7 +147,7 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
     }
 
     return (
-      <Form {...formItemLayout} >
+      <Form {...formItemLayout}>
         <Form.Item
           key="parentId"
           label="上级分类"

@@ -8,6 +8,7 @@ import ProLayout, {
   BasicLayoutProps as ProLayoutProps,
   Settings,
   SettingDrawer,
+  DefaultFooter,
 } from '@ant-design/pro-layout';
 import React, { useEffect } from 'react';
 import Link from 'umi/link';
@@ -40,29 +41,15 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
-const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
-  if (!isAntDesignPro()) {
-    return defaultDom;
-  }
+const links = [
+  { key: 'khetao', title: 'khetao', href: 'http://www.khetao.com', blankTarget: true },
+  { key: 'khetao-admin', title: 'khetao-admin', href: 'http://admin.khetao.com', blankTarget: true },
+];
+const copyright = '2019 壳桃科技';
 
+const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
   return (
-    <>
-      {defaultDom}
-      <div
-        style={{
-          padding: '0px 24px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <a href="https://www.netlify.com" target="_blank" rel="noopener noreferrer">
-          <img
-            src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"
-            width="82px"
-            alt="netlify logo"
-          />
-        </a>
-      </div>
-    </>
+    <DefaultFooter links={links}  copyright={copyright}/>
   );
 };
 
@@ -132,7 +119,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       >
         {children}
       </ProLayout>
-      <SettingDrawer
+      {/* <SettingDrawer
         settings={settings}
         onSettingChange={config =>
           dispatch({
@@ -140,7 +127,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
             payload: config,
           })
         }
-      />
+      /> */}
     </>
   );
 };
