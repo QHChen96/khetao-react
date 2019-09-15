@@ -2,8 +2,10 @@ import { Effect } from 'dva';
 import { Reducer } from 'redux';
 
 import { queryCurrent, query as queryUsers } from '@/services/user';
+import { uploadImage } from '@/pages/account/settings/service';
 
 export interface CurrentUser {
+  id?: string | number;
   avatar?: string;
   name?: string;
   title?: string;
@@ -26,10 +28,12 @@ export interface UserModelType {
   effects: {
     fetch: Effect;
     fetchCurrent: Effect;
+    uploadAvatar: Effect;
   };
   reducers: {
     saveCurrentUser: Reducer<UserModelState>;
     changeNotifyCount: Reducer<UserModelState>;
+    updateAvatar: Reducer<UserModelState>;
   };
 }
 
@@ -55,6 +59,13 @@ const UserModel: UserModelType = {
         payload: response,
       });
     },
+    *uploadAvatar({ payload }, { call, put }) {
+      const response = yield call(uploadImage, payload);
+      yield put({
+        type: 'updateAvatar',
+        payload: response.data.url,
+      });
+    }
   },
 
   reducers: {
@@ -79,6 +90,17 @@ const UserModel: UserModelType = {
         },
       };
     },
+    updateAvatar(state={
+      currentUser:{}
+    }, action) {
+      console.log(action);
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser, avatar: action.payload
+        }
+      }
+    }
   },
 };
 

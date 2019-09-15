@@ -9,3 +9,4 @@ export function setAuthority(authority: string | string[]) {
   const proAuthority = typeof authority === 'string' ? [authority] : authority;
   return localStorage.setItem(KhetaoType.AUTH_KEY, JSON.stringify(proAuthority));
 }
+

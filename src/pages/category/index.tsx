@@ -58,10 +58,6 @@ class CategoryList extends Component<
     });
   }
 
-  componentDidUpdate() {
-    console.log("update");
-  }
-
   createNewCate = (e: React.MouseEvent<HTMLElement>, parentId: number|string) => {
     e.preventDefault();
     const { data: { list } } = this.props.categoryList;
@@ -127,14 +123,14 @@ class CategoryList extends Component<
       loading 
     } = this.props;
     const { currentCate={}, parentList=[] } = this.state;
-    let datasource: Category[] = [];
+    const datasource: Category[] = [];
     if (data && data.list) {
       const flist:Category[] = data.list.filter(e => e.parentId >= 0);
-      datasource = arrayToTree(
+      datasource.concat(arrayToTree(
         sortBy(flist, ele => -ele.priority), {
           parentProperty: 'parentId',
           customID: 'id'
-      });
+      }));
     }
     return (
       <GridContent>

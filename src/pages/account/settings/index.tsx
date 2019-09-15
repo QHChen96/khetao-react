@@ -7,7 +7,7 @@ import { Menu } from 'antd';
 import { connect } from 'dva';
 import BaseView from './components/base';
 import BindingView from './components/binding';
-import { CurrentUser } from './data.d';
+import { CurrentUser } from '@/models/user';
 import NotificationView from './components/notification';
 import SecurityView from './components/security';
 import styles from './style.less';
@@ -27,8 +27,8 @@ interface SettingsState {
   };
   selectKey: SettingsStateKeys;
 }
-@connect(({ accountSettings }: { accountSettings: { currentUser: CurrentUser } }) => ({
-  currentUser: accountSettings.currentUser,
+@connect(({ user }: { user: { currentUser: CurrentUser } }) => ({
+  currentUser: user.currentUser,
 }))
 class Settings extends Component<
   SettingsProps,
@@ -63,7 +63,7 @@ class Settings extends Component<
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'accountSettings/fetchCurrent',
+      type: 'user/fetchCurrent',
     });
     window.addEventListener('resize', this.resize);
     this.resize();
@@ -131,7 +131,7 @@ class Settings extends Component<
 
   render() {
     const { currentUser } = this.props;
-    if (!currentUser.userid) {
+    if (!currentUser.id) {
       return '';
     }
     const { mode, selectKey } = this.state;

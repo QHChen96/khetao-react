@@ -10,6 +10,7 @@ interface AuthComponentProps extends ConnectProps {
 }
 
 const getRouteAuthority = (path: string, routeData: Route[]) => {
+ 
   let authorities: string[] | string | undefined;
   routeData.forEach(route => {
   
@@ -25,6 +26,7 @@ const getRouteAuthority = (path: string, routeData: Route[]) => {
       }
     }
   });
+
   return authorities;
 };
 
@@ -43,7 +45,6 @@ const AuthComponent: React.FC<AuthComponentProps> = ({
 
   const isLogin = currentUser && currentUser.name;
   // 检查token 过期性
-
   return (
     <Authorized
       authority={getRouteAuthority(location.pathname, routes) || ''}

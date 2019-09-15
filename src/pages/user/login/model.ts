@@ -38,12 +38,15 @@ const Model: ModelType = {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
+      
       yield put({
         type: 'changeLoginStatus',
-        payload: response,
+        payload: {status: 'ok', type: payload.type},
       });
       // Login successfully
       if (response.code === 1) {
+        const jwtPayload = setToken(response.data);
+        setAuthority(jwtPayload.authorities);
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params as { redirect: string };
@@ -70,12 +73,10 @@ const Model: ModelType = {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      if (payload && payload.data) {
-        let jwtPayload = setToken(payload.data);
-        setAuthority(jwtPayload.authorities);
-      }
       return {
         ...state,
+        status: payload.status,
+        type: payload.type,
       };
     },
   },

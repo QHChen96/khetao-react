@@ -4,16 +4,27 @@ import React, { Component, Fragment } from 'react';
 
 import { FormComponentProps } from 'antd/es/form';
 import { connect } from 'dva';
-import { CurrentUser } from '../data.d';
+import { CurrentUser } from '@/models/user';
 import GeographicView from './GeographicView';
 import PhoneView from './PhoneView';
 import styles from './BaseView.less';
+import { Dispatch } from 'redux';
+import { ConnectState } from '@/models/connect';
+
+
 
 const FormItem = Form.Item;
 const { Option } = Select;
 
+interface UploadFile {
+  data: object;
+  file: File;
+  headers: object;
+  filename: string;
+}
+
 // 头像组件 方便以后独立，增加裁剪之类的功能
-const AvatarView = ({ avatar }: { avatar: string }) => (
+const AvatarView = ({ avatar, customRequest }: { avatar: string, customRequest: (object: object) => void }) => (
   <Fragment>
     <div className={styles.avatar_title}>
       <FormattedMessage id="account-settings.basic.avatar" defaultMessage="Avatar" />
@@ -21,7 +32,10 @@ const AvatarView = ({ avatar }: { avatar: string }) => (
     <div className={styles.avatar}>
       <img src={avatar} alt="avatar" />
     </div>
-    <Upload fileList={[]}>
+    <Upload 
+      customRequest={customRequest}
+      accept="image/*"
+      fileList={[]} >
       <div className={styles.button_view}>
         <Button icon="upload">
           <FormattedMessage id="account-settings.basic.change-avatar" defaultMessage="Change avatar" />
@@ -66,10 +80,11 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
 
 interface BaseViewProps extends FormComponentProps {
   currentUser?: CurrentUser;
+  dispatch?: Dispatch;
 }
 
-@connect(({ accountSettings }: { accountSettings: { currentUser: CurrentUser } }) => ({
-  currentUser: accountSettings.currentUser,
+@connect(({ user }: ConnectState) => ({
+  currentUser: user.currentUser,
 }))
 class BaseView extends Component<BaseViewProps> {
   view: HTMLDivElement | undefined = undefined;
@@ -105,11 +120,30 @@ class BaseView extends Component<BaseViewProps> {
     this.view = ref;
   };
 
+  customRequest = (object: object) => {
+    const { file } = object as UploadFile;
+    const { dispatch } = this.props;
+    if (dispatch) {
+      dispatch({
+        type: 'user/uploadAvatar',
+        payload: file
+      })
+    }
+  }
+  
+
   handlerSubmit = (event: React.MouseEvent) => {
     event.preventDefault();
-    const { form } = this.props;
-    form.validateFields(err => {
+    const { form, dispatch, currentUser={} } = this.props;
+    form.validateFields((err, values) => {
       if (!err) {
+        if (dispatch) {
+          const user = { ...currentUser, ...values };
+          dispatch && dispatch({
+            type: 'user/saveCurrentUser',
+            payload: user
+          })
+        }
         message.success(formatMessage({ id: 'account-settings.basic.update.success' }));
       }
     });
@@ -212,7 +246,7 @@ class BaseView extends Component<BaseViewProps> {
           </Form>
         </div>
         <div className={styles.right}>
-          <AvatarView avatar={this.getAvatarURL()} />
+          <AvatarView avatar={this.getAvatarURL()} customRequest={this.customRequest}/>
         </div>
       </div>
     );

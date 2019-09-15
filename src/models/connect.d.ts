@@ -31,7 +31,7 @@ export interface ConnectState {
 
 export type Effect = (
   action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: ConnectState) => T) => T },
+  effects: EffectsCommandMap & { select: <T>(func:  (state: ConnectState) => T) => T },
 ) => void;
 
 /**

@@ -61,6 +61,11 @@ export function checkToken(payload: JwtPayload): boolean {
   return true;
 }
 
+export function clearAuthority():void {
+  localStorage.removeItem(KhetaoType.AUTH_KEY);
+  localStorage.removeItem(KhetaoType.TOKEN_KEY);
+}
+
 enum KhetaoType {
   TOKEN_KEY = 'khetao-jwt-token',
   AUTH_KEY = 'antd-pro-authority'

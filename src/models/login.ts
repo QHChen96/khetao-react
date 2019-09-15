@@ -3,7 +3,7 @@ import { parse, stringify } from 'qs';
 
 import { EffectsCommandMap } from 'dva';
 import { routerRedux } from 'dva/router';
-import { jwt } from 'jwt-decode';
+import { clearAuthority } from '@/utils/utils';
 
 export function getPageQuery(): {
   [key: string]: string;
@@ -37,6 +37,7 @@ const Model: ModelType = {
   effects: {
     *logout(_, { put }) {
       const { redirect } = getPageQuery();
+      clearAuthority();
       // redirect
       if (window.location.pathname !== '/user/login' && !redirect) {
         yield put(

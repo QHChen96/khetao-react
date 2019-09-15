@@ -15,3 +15,14 @@ export async function queryCity(province: string) {
 export async function query() {
   return request('/api/users');
 }
+
+
+export async function uploadImage(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return request('/server/image/upload', {
+    method: 'POST',
+    data: formData,
+    requestType: 'form'
+  });
+}

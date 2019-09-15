@@ -80,6 +80,9 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
         if (handleUpdate) {
           const newCate = { ...currentCate, ...values }
           handleUpdate(newCate);
+          if (!currentCate.id) {
+            form.resetFields();
+          }
         }
       }
     });
@@ -145,6 +148,8 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
         }
       });
     }
+
+    console.log(treeData);
 
     return (
       <Form {...formItemLayout}>

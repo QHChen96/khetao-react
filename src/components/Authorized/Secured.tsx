@@ -50,6 +50,7 @@ const authorize = (authority: string, error?: React.ReactNode) => {
    * 防止传入字符串时找不到staticContext造成报错
    * String parameters can cause staticContext not found error
    */
+  debugger;
   let classError: boolean | React.FunctionComponent = false;
   if (error) {
     classError = (() => error) as React.FunctionComponent;

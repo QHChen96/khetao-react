@@ -9,6 +9,7 @@ import { ConnectState } from "@/models/connect";
 
 import BasicView from './components/basic';
 import WebInfo from "./components/webInfo";
+import CustomCategory from './components/custom-category/CustomCategory';
 const { Item } = Menu;
 
 
@@ -78,6 +79,8 @@ class ShopSettings extends Component<ShopSettingsProps, ShopSettingsState> {
         return <BasicView/>;
       case 'webInfo':
         return <WebInfo/>;
+      case 'customCate':
+        return <CustomCategory />;
       default: 
         break;
     }

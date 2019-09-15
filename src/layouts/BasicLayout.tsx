@@ -119,7 +119,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       >
         {children}
       </ProLayout>
-      {/* <SettingDrawer
+      <SettingDrawer
         settings={settings}
         onSettingChange={config =>
           dispatch({
@@ -127,7 +127,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
             payload: config,
           })
         }
-      /> */}
+      />
     </>
   );
 };
