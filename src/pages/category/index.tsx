@@ -60,6 +60,7 @@ class CategoryList extends Component<
 
   createNewCate = (e: React.MouseEvent<HTMLElement>, parentId: number|string) => {
     e.preventDefault();
+
     const { data: { list } } = this.props.categoryList;
     const parentList = filter(list, ele => ele.level < this.maxLevel);
     this.setState({
@@ -74,7 +75,6 @@ class CategoryList extends Component<
     if (!id) {
       return;
     }
-    console.log(record);
     const isParent = record.children && record.children.length > 0;
     if (isParent) {
       message.error('请删除子类后再试!');
@@ -113,24 +113,23 @@ class CategoryList extends Component<
     dispatch({
       type: 'categoryList/save',
       payload: category,
-    })
+    });
   }
 
   render() {
-    console.log('render');
     const { 
       categoryList: { data },
       loading 
     } = this.props;
     const { currentCate={}, parentList=[] } = this.state;
-    const datasource: Category[] = [];
+    let datasource: Category[] = [];
     if (data && data.list) {
       const flist:Category[] = data.list.filter(e => e.parentId >= 0);
-      datasource.concat(arrayToTree(
+      datasource = arrayToTree(
         sortBy(flist, ele => -ele.priority), {
           parentProperty: 'parentId',
           customID: 'id'
-      }));
+      });
     }
     return (
       <GridContent>

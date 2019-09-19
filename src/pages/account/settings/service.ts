@@ -1,9 +1,5 @@
 import request from '@/utils/request';
 
-export async function queryCurrent() {
-  return request('/api/currentUser');
-}
-
 export async function queryProvince() {
   return request('/api/geographic/province');
 }
@@ -20,7 +16,7 @@ export async function query() {
 export async function uploadImage(file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  return request('/server/image/upload', {
+  return request('/server/shop-user/upload/avatar', {
     method: 'POST',
     data: formData,
     requestType: 'form'

@@ -48,7 +48,7 @@ class ShopSwitchDropdown extends React.Component<GlobalHeaderRightProps> {
       return (
         <span className={`${styles.action} ${styles.account}`}>
           <Avatar size="small" className={styles.avatar} src={currentShop.avatar} alt="avatar" />
-          <span className={styles.name}>{currentShop.name}</span>
+          <span className={styles.name}>{currentShop.shopName}</span>
         </span>
       );
     }
@@ -60,18 +60,18 @@ class ShopSwitchDropdown extends React.Component<GlobalHeaderRightProps> {
             <Menu.Item key={shop.id}>
               <span className={`${styles.action} ${styles.account}`}>
                 <Avatar size="small" className={styles.avatar} src={shop.avatar} alt="avatar" />
-                <span className={styles.name}>{shop.name}</span>
+                <span className={styles.name}>{shop.shopName}</span>
               </span>
             </Menu.Item>
           ))
         }
       </Menu>
     );
-    return currentShop && currentShop.name ? (
+    return currentShop && currentShop.shopName ? (
       <HeaderDropdown overlay={menuHeaderDropdown}>
         <span className={`${styles.action} ${styles.account}`}>
           <Avatar size="small" className={styles.avatar} src={currentShop.avatar} alt="avatar" />
-          <span className={styles.name}>{currentShop.name}</span>
+          <span className={styles.name}>{currentShop.shopName}</span>
         </span>
       </HeaderDropdown>
     ) : (

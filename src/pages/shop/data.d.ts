@@ -10,14 +10,24 @@ export interface Shop {
   logo: string;
 }
 
-
 export interface CustomCategory {
-  id?: number ;
-  cateName: string | undefined;
-  level: number;
-  i18n: string | undefined;
-  parentId: number | string;
-  children?: CustomCategory[];
-  priority: number;
+  id: number | string;
+  cateName: string;
   imageUrls: UploadFile[];
+  i18n?: string;
+  level: number;
+  parentId: number | string;
+  parentIds?: string;
+  priority: number;
+  children?: CustomCategory[];
+  parents?: CustomCategory[];
+  shopId?: number | string;
+}
+
+export interface CustomCategoryListData {
+  list: CustomCategory[];
+}
+
+export interface CustomCategoryListParams {
+
 }

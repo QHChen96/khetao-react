@@ -1,17 +1,19 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { CategoryListData } from './data';
+import { CustomCategoryListData } from './data';
 import { queryCategory, saveCategory, delCategory } from './service';
 import { findIndex } from 'lodash';
 
+
 export interface StateType {
-  data: CategoryListData;
+  customCategoryData: CustomCategoryListData
 }
 
 export type Effect = (
   action: AnyAction,
   effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
 ) => void;
+
 
 export interface ModelType {
   namespace: string;
@@ -31,11 +33,12 @@ export interface ModelType {
 }
 
 const Model: ModelType = {
-  namespace: 'categoryList',
+  namespace: 'customCategory',
   state: {
-    data: {
+    customCategoryData: {
       list: [],
     }
+   
   },
   effects: {
     *fetch({ payload }, { call, put }) {
@@ -71,35 +74,45 @@ const Model: ModelType = {
   },
   reducers: {
     list(state={
-      data: {
+      customCategoryData: {
         list: []
       }
     }, action) {
+      console.log(action)
       return {
         ...state,
-        data: {
+        customCategoryData: {
+          ...state.customCategoryData,
           list: [...action.payload]
         }
       };
     },
-    insert(state, action) {
-      const { data: { list } } = state as StateType;
+    insert(state={
+      customCategoryData: {
+        list: []
+      }
+    }, action) {
+      const { customCategoryData:{list} } = state;
       return {
         ...state,
-        data: {
+        customCategoryData: {
           list: [...list, action.payload]
-        }
+        }  
       }
     },
-    update(state, action) {
-      const { data: { list } } = state as StateType;
+    update(state={
+      customCategoryData: {
+        list: []
+      }
+    }, action) {
+      const { customCategoryData:{list} } = state;
       if (list) {
         const index = findIndex(list, ele => ele.id === action.payload.id);
         if (index > -1) {
           list.splice(index, 1, action.payload)
           return {
             ...state,
-            data: {
+            customCategoryData: {
               list: [...list]
             }
           }
@@ -108,16 +121,16 @@ const Model: ModelType = {
       return state as StateType;
     },
     remove(state={
-      data: {
+      customCategoryData: {
         list: []
       }
     }, action) {
-      const { data: { list } } = state;
+      const { customCategoryData:{list} } = state;
       if (list) {
         const newList = list.filter(e => e.id !== action.payload);
         return {
           ...state,
-          data: {
+          customCategoryData: {
             list: [...newList]
           }
         }

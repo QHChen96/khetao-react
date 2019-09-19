@@ -4,7 +4,7 @@ export default {
   // 支持值为 Object 和 Array
   'GET /api/currentUser': {
     id: 100,
-    name: 'Serati Ma',
+    nickName: 'Serati Ma',
     avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
     email: 'antdesign@alipay.com',
     signature: '海纳百川，有容乃大',

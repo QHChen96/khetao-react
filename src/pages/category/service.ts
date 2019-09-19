@@ -7,103 +7,23 @@ export async function refreshCategory() {
 }
 
 export async function delCategory(id: number) {
-  return {
-    code: 200,
-    msg: "SUCCESS"
-  }
+  return request('/server/category/delete', {
+    requestType: 'json',
+    params: {
+      id: id
+    }
+  });
 }
 
 export async function saveCategory(category: Category) {
-  if (category.id) {
-    return {
-      code: 200,
-      msg: "SUCCESS",
-      data: {...category}
-    }
-  } else {
-    return {
-      code: 200,
-      msg: "SUCCESS",
-      data: {...category, id: uniqueId("cate_")}
-    }
-  }
+  return request('/server/category/save', {
+    requestType: 'json',
+    method: 'POST',
+    data: category
+  });
+  
 }
 
 export async function queryCategory(params: CategoryListParams) {
-  return {
-    list: [
-      {
-        id: 0,
-        cateName: '主营分类',
-        priority: 10,
-        i18n: 'main',
-        level: 0,
-        imageUrls: [],
-        parentId: -1
-      },
-      {
-        id: 1,
-        cateName: '衣服',
-        priority: 10,
-        i18n: 'cateName',
-        level: 1,
-        imageUrls: [{
-          uid: '-1',
-          name: '衣服.jpg',
-          url: 'https://ecmb.bdimg.com/tam-ogel/299c55e31d7f50ae4dc85faa90d6f445_121_121.jpg',
-          size: 10000
-        }],
-        parentId: 0
-      }, {
-        id: 11,
-        cateName: '衣服1',
-        priority: 10,
-        i18n: 'cateName',
-        level: 2,
-        imageUrls: [{
-          uid: '-2',
-          name: '衣服1.jpg',
-          url: 'https://cf.shopee.com.my/file/bde692b600727f1e1c209babc7799a37',
-          size: 10000
-        }],
-        parentId: 1
-      }, {
-        id: 111,
-        cateName: '衣服11',
-        priority: 10,
-        i18n: 'cateName',
-        level: 3,
-        imageUrls: [{
-          uid: '-3',
-          name: '衣服1.jpg',
-          url: 'https://cf.shopee.com.my/file/bde692b600727f1e1c209babc7799a37',
-          size: 10000
-        }],
-        parentId: 11
-      }, {
-        id: 222,
-        cateName: '衣服22',
-        priority: 9,
-        i18n: 'cateName',
-        level: 3,
-        imageUrls: [
-        ],
-        parentId: 11
-      },
-      {
-        id: 2,
-        cateName: '裤子',
-        priority: 10,
-        i18n: 'cateName',
-        level: 1,
-        imageUrls: [{
-          uid: '-1',
-          name: '衣服.jpg',
-          url: 'https://ecmb.bdimg.com/tam-ogel/299c55e31d7f50ae4dc85faa90d6f445_121_121.jpg',
-          size: 10000
-        }],
-        parentId: 0
-      }
-    ]
-  }
+  return request('/server/category/list');
 }

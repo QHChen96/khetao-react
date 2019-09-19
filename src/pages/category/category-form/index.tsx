@@ -73,9 +73,9 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
     event.preventDefault();
     const { form, handleUpdate } = this.props;
     const { currentCate } = this.state;
+    console.log(currentCate);
     form.validateFields((err, values) => {
       if (!err) {
-        console.log(values);
         message.success("操作成功!");
         if (handleUpdate) {
           const newCate = { ...currentCate, ...values }
@@ -123,7 +123,6 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
   }
 
   normFile = (e: UploadChangeParam) => {
-    console.log('Upload event:', e);
     if (Array.isArray(e)) {
       return e;
     }
@@ -132,7 +131,6 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
 
 
   render() {
-    console.log('cate');
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { previewVisible, previewImage } = this.state;
     const { currentCate, parentList } = this.props;
@@ -149,7 +147,6 @@ class BasicCategoryForm extends Component<BasicCategoryFormProps, BasicCategoryF
       });
     }
 
-    console.log(treeData);
 
     return (
       <Form {...formItemLayout}>

@@ -7,7 +7,13 @@ import { uploadImage } from '@/pages/account/settings/service';
 export interface CurrentUser {
   id?: string | number;
   avatar?: string;
-  name?: string;
+  nickName?: string;
+  username?: string;
+  email?: string;
+  realName?: string;
+  mobile?: string;
+  mobileCode?: string;
+  sex?: number;
   title?: string;
   group?: string;
   signature?: string;
@@ -56,14 +62,14 @@ const UserModel: UserModelType = {
       const response = yield call(queryCurrent);
       yield put({
         type: 'saveCurrentUser',
-        payload: response,
+        payload: response.data,
       });
     },
     *uploadAvatar({ payload }, { call, put }) {
       const response = yield call(uploadImage, payload);
       yield put({
         type: 'updateAvatar',
-        payload: response.data.url,
+        payload: response.data,
       });
     }
   },

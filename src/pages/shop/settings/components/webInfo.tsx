@@ -8,6 +8,7 @@ import styles from './webInfo.less';
 import { ConnectState } from "@/models/connect";
 import { connect } from "dva";
 import TextArea from "antd/es/input/TextArea";
+import { Dispatch } from 'redux';
 
 
 const selectBefore = (
@@ -28,7 +29,8 @@ const selectAfter = (
 
 
 interface WebInfoViewProps extends FormComponentProps {
-  currentShop?: CurrentShop
+  currentShop?: CurrentShop;
+  dispatch?: Dispatch;
 }
 
 @connect(({ shop }: ConnectState) => ({
@@ -47,12 +49,17 @@ class WebInfoView extends Component<WebInfoViewProps> {
 
   handlerSubmit = (event: React.MouseEvent) => {
     event.preventDefault();
-    const { form } = this.props;
-    form.validateFields((err, value) => {
+    const { form, dispatch, currentShop } = this.props;
+    form.validateFields((err, values) => {
       if (!err) {
+        if (dispatch) {
+          dispatch({
+            type: "shop/saveWebInfo",
+            payload: {...currentShop, ...values}
+          })
+        }
         message.success("修改成功");
       }
-      console.log(value);
     })
   }
 
@@ -73,7 +80,7 @@ class WebInfoView extends Component<WebInfoViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.title
               })(<Input />)}
             </FormItem>
             <FormItem label="网址">
@@ -83,7 +90,7 @@ class WebInfoView extends Component<WebInfoViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.website
               })(<Input />)}
             </FormItem>
             <FormItem label="keyword">
@@ -93,7 +100,7 @@ class WebInfoView extends Component<WebInfoViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.keyword
               })(<Input />)}
             </FormItem>
             <FormItem label="description">
@@ -103,7 +110,7 @@ class WebInfoView extends Component<WebInfoViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.description
               })(<TextArea
                 autosize={{ minRows: 2, maxRows: 6 }}
               />)}

@@ -1,7 +1,7 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { GeographicItemType } from './data.d';
-import { queryCity, queryCurrent, queryProvince, query as queryUsers, uploadImage } from './service';
+import { queryCity, queryProvince, query as queryUsers, uploadImage } from './service';
 
 export interface ModalState {
   province?: GeographicItemType[];

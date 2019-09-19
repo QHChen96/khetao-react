@@ -168,7 +168,7 @@ class BaseView extends Component<BaseViewProps> {
               })(<Input />)}
             </FormItem>
             <FormItem label={formatMessage({ id: 'account-settings.basic.nickname' })}>
-              {getFieldDecorator('name', {
+              {getFieldDecorator('nickName', {
                 rules: [
                   {
                     required: true,

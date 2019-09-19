@@ -7,8 +7,8 @@ import FormItem from "antd/lib/form/FormItem";
 import styles from './basic.less';
 import { ConnectState } from "@/models/connect";
 import { connect } from "dva";
-import PhoneView from "@/pages/account/settings/components/PhoneView";
 import ServiceTimeView from "./ServiceTimeView";
+import { Dispatch } from "redux";
 
 const LogoView = ({ logo }: { logo: string }) => (
   <Fragment>
@@ -64,7 +64,8 @@ const validatorPhone = (rule: any, value: string, callback: (message?: string) =
 };
 
 interface BasicViewProps extends FormComponentProps {
-  currentShop?: CurrentShop
+  currentShop?: CurrentShop,
+  dispatch?: Dispatch
 }
 
 @connect(({ shop }: ConnectState) => ({
@@ -97,9 +98,15 @@ class BasicView extends Component<BasicViewProps> {
 
   handlerSubmit = (event: React.MouseEvent) => {
     event.preventDefault();
-    const { form } = this.props;
-    form.validateFields((err, value) => {
+    const { form, currentShop={}, dispatch } = this.props;
+    form.validateFields((err, values) => {
       if (!err) {
+        if (dispatch) {
+          dispatch({
+            type: "shop/saveBasic",
+            payload: {...currentShop, ...values}
+          })
+        }
         message.success("修改成功");
       }
     })
@@ -116,13 +123,13 @@ class BasicView extends Component<BasicViewProps> {
         <div className={styles.left}>
           <Form layout="vertical" hideRequiredMark>
             <FormItem label="名称">
-              {getFieldDecorator('name', {
+              {getFieldDecorator('shopName', {
                 rules: [
                   {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.shopName
               })(<Input />)}
             </FormItem>
             <FormItem label="邮箱">
@@ -132,7 +139,7 @@ class BasicView extends Component<BasicViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.email
               })(<Input />)}
             </FormItem>
             <FormItem label="地址">
@@ -142,17 +149,17 @@ class BasicView extends Component<BasicViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.address
               })(<Input />)}
             </FormItem>
             <FormItem label="联系人">
-              {getFieldDecorator('address', {
+              {getFieldDecorator('contacts', {
                 rules: [
                   {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.contacts
               })(<Input />)}
             </FormItem>
             <FormItem label="客服电话">
@@ -162,7 +169,7 @@ class BasicView extends Component<BasicViewProps> {
                     required: true,
                   }
                 ],
-                initialValue: currentShop.name
+                initialValue: currentShop.servicePhone
               })(<Input />)}
             </FormItem>
             <FormItem label="客服时间">
@@ -172,18 +179,10 @@ class BasicView extends Component<BasicViewProps> {
                     required: true,
                   }
                 ],
+                initialValue: currentShop.serviceTime
               })(<ServiceTimeView />)}
             </FormItem>
 
-            <FormItem label="手机">
-              {getFieldDecorator('phone', {
-                rules: [
-                  {
-                    required: true,
-                  }
-                ]
-              })(<PhoneView />)}
-            </FormItem>
             <Button type="primary" onClick={this.handlerSubmit}>
               提交资料
             </Button>

@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from "react";
-import { Form, Select, InputNumber, Button,Input  } from "antd";
+import { Form, Select, InputNumber,Input  } from "antd";
 import { FormComponentProps } from 'antd/es/form';
-import { CustomCategory } from "@/pages/shop/data";
+import { CustomCategory } from '../../../data';
+
 
 export interface CustomCategoryFormProps extends FormComponentProps {
   currentCate: Partial<CustomCategory>;
@@ -34,10 +35,10 @@ export class BasicCustomCategoryForm extends Component<CustomCategoryFormProps, 
     if (e) {
       e.preventDefault();
     }
-    const { form, handleSubmit } = this.props;
+    const { form, handleSubmit, currentCate } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        const cate = { ...values };
+        const cate = { ...currentCate, ...values };
         if (handleSubmit) {
           handleSubmit(cate);
         }

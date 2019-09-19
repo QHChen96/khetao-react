@@ -43,7 +43,8 @@ const AuthComponent: React.FC<AuthComponentProps> = ({
   const { currentUser } = user;
   const { routes = [] } = route;
 
-  const isLogin = currentUser && currentUser.name;
+  const isLogin = currentUser && currentUser.id;
+  console.log(currentUser);
   // 检查token 过期性
   return (
     <Authorized
