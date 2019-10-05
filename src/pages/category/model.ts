@@ -35,7 +35,7 @@ const Model: ModelType = {
   state: {
     data: {
       list: [],
-    }
+    },
   },
   effects: {
     *fetch({ payload }, { call, put }) {
@@ -45,7 +45,7 @@ const Model: ModelType = {
         payload: response.data,
       });
     },
-    *save({ payload }, { call, put } ) {
+    *save({ payload, callback }, { call, put }) {
       const response = yield call(saveCategory, payload);
       if (payload.id) {
         yield put({
@@ -58,73 +58,85 @@ const Model: ModelType = {
           payload: response.data,
         });
       }
+      callback();
     },
     *delete({ payload }, { call, put }) {
       const response = yield call(delCategory, payload);
-      
+
       yield put({
         type: 'remove',
         payload: response.data,
       });
-      
-    }
+    },
   },
   reducers: {
-    list(state={
-      data: {
-        list: []
-      }
-    }, action) {
+    list(
+      state = {
+        data: {
+          list: [],
+        },
+      },
+      action,
+    ) {
       return {
         ...state,
         data: {
-          list: [...action.payload]
-        }
+          list: [...action.payload],
+        },
       };
     },
     insert(state, action) {
-      const { data: { list } } = state as StateType;
+      const {
+        data: { list },
+      } = state as StateType;
       return {
         ...state,
         data: {
-          list: [...list, action.payload]
-        }
-      }
+          list: [...list, action.payload],
+        },
+      };
     },
     update(state, action) {
-      const { data: { list } } = state as StateType;
+      const {
+        data: { list },
+      } = state as StateType;
       if (list) {
         const index = findIndex(list, ele => ele.id === action.payload.id);
         if (index > -1) {
-          list.splice(index, 1, action.payload)
+          list.splice(index, 1, action.payload);
           return {
             ...state,
             data: {
-              list: [...list]
-            }
-          }
+              list: [...list],
+            },
+          };
         }
       }
       return state as StateType;
     },
-    remove(state={
-      data: {
-        list: []
-      }
-    }, action) {
-      const { data: { list } } = state;
+    remove(
+      state = {
+        data: {
+          list: [],
+        },
+      },
+      action,
+    ) {
+      const {
+        data: { list },
+      } = state;
       if (list) {
         const newList = list.filter(e => e.id !== action.payload);
         return {
           ...state,
           data: {
-            list: [...newList]
-          }
-        }
+            list: [...newList],
+          },
+        };
       }
       return state;
-    }
+    },
   },
-}
+};
 
 export default Model;

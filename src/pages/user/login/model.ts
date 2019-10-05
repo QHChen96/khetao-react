@@ -2,8 +2,8 @@ import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { routerRedux } from 'dva/router';
 import { fakeAccountLogin, getFakeCaptcha } from './service';
-import { getPageQuery, setAuthority } from './utils/utils';
-import { setToken } from '@/utils/utils'
+import { getPageQuery, setAuthority } from '@/utils/utils';
+import { setToken } from '@/utils/utils';
 
 export interface StateType {
   status?: 'ok' | 'error';
@@ -38,10 +38,10 @@ const Model: ModelType = {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
-      
+
       yield put({
         type: 'changeLoginStatus',
-        payload: {status: 'ok', type: payload.type},
+        payload: { status: 'ok', type: payload.type },
       });
       // Login successfully
       if (response.code === 1) {

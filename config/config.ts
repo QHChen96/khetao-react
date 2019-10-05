@@ -362,7 +362,7 @@ export default {
                     {
                       name: 'product-publish',
                       path: '/product/publish',
-                      component: './product/publish',
+                      component: './product/form',
                     },
                   ],
                 },
@@ -374,7 +374,7 @@ export default {
                 {
                   component: '404',
                 },
-              ]
+              ],
             },
           ],
         },
@@ -401,7 +401,7 @@ export default {
         resourcePath: string;
       },
       _: string,
-      localName: string
+      localName: string,
     ) => {
       if (
         context.resourcePath.includes('node_modules') ||

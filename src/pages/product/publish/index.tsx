@@ -1,26 +1,12 @@
-import { 
-  Row, 
-  Col, 
-  Card, 
-  Table, 
-  Input, 
-  Steps, 
-  Modal, 
-  Icon, 
-  Upload,
-  Form,
-  Radio,
-  Button
-} from 'antd';
-import React, { Component, Fragment } from 'react';
+import { Row, Col, Input, Steps, Icon, Upload, Form, Radio, Button, Select } from 'antd';
+import React, { Component } from 'react';
 
 import { GridContent } from '@ant-design/pro-layout';
 import styles from './style.less';
-import { ProdSku, SkuPropName, SkuPropVal, SkuProp } from '../data';
+import { ProdSku, SkuPropName } from '../data';
 import { FormComponentProps } from 'antd/es/form';
 
 import SkuForm from './sku-form';
-
 
 function getBase64(file: File) {
   return new Promise((resolve, reject) => {
@@ -33,16 +19,14 @@ function getBase64(file: File) {
 
 const steps = [
   {
-    title: '编辑基本信息'
+    title: '编辑基本信息',
   },
   {
-    title: '编辑商品详情'
+    title: '编辑商品详情',
   },
 ];
 
-
 // 当前级别 、 剩余级别 、 归并
-
 
 const uploadButton = (
   <div>
@@ -54,60 +38,59 @@ const uploadButton = (
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
-    sm: { span: 3 },
+    sm: { span: 4 },
   },
   wrapperCol: {
     xs: { span: 24 },
-    sm: { span: 18 },
+    sm: { span: 20 },
   },
 };
 
-class MyProdPublishForm extends Component<ProdPublishFormProps, ProdPublishFormState>  {
-  
+class MyProdPublishForm extends Component<ProdPublishFormProps, ProdPublishFormState> {
   state = {
-    skuProps: []
-  }
+    skuProps: [],
+  };
 
   render() {
     const { skuProps } = this.state;
     const {
-      form: { getFieldDecorator }
+      form: { getFieldDecorator },
     } = this.props;
     return (
       <div className={styles.stepsContent}>
         <Form {...formItemLayout}>
           <h3>基本信息</h3>
           <Form.Item label="产品名" required>
-            <Input type="text" placeholder="请输入产品名"/>
+            <Input type="text" placeholder="请输入产品名" />
           </Form.Item>
           <Form.Item label="标题" required>
-            <Input type="text" placeholder="请输入标题"/>
+            <Input type="text" placeholder="请输入标题" />
           </Form.Item>
           <Form.Item label="商品图" required>
-            <Upload 
-              listType="picture-card">
-            </Upload>
+            <Upload listType="picture-card"></Upload>
           </Form.Item>
           <Form.Item label="商品类目" required>
-            <Input type="text" placeholder="请选择商品类目"/>
-          </Form.Item> 
-          {getFieldDecorator('skuProps', {
-            initialValue: skuProps,
-          })(<SkuForm />)}
+            <Select></Select>
+          </Form.Item>
+          <Form.Item label="店铺分类" required>
+            <Select></Select>
+          </Form.Item>
+          <h3>价格库存</h3>
+          <Form.Item label="商品规格" required>
+            {getFieldDecorator('skuProps', {
+              initialValue: skuProps,
+            })(<SkuForm />)}
+          </Form.Item>
           <Form.Item label="价格" required>
-            <Input/>
+            <Input />
           </Form.Item>
           <Form.Item label="划线价格">
-            <Input/>
+            <Input />
           </Form.Item>
           <Form.Item label="减库存的方式" required>
             <Radio.Group>
-              <Radio value={1}>
-                拍下减库存
-              </Radio>
-              <Radio value={2}>
-                付款减库存
-              </Radio>
+              <Radio value={1}>拍下减库存</Radio>
+              <Radio value={2}>付款减库存</Radio>
             </Radio.Group>
           </Form.Item>
         </Form>
@@ -137,19 +120,18 @@ interface ProductPublishState {
 }
 
 class ProductPublish extends Component<ProductPublishProps, ProductPublishState> {
-
   static defaultProps = {
     className: '',
     defaultCurrent: 0,
     onNext: () => {},
-    onPrev: () => {}
-  }
+    onPrev: () => {},
+  };
 
   constructor(props: ProductPublishProps) {
     super(props);
     this.state = {
       current: props.defaultCurrent,
-    }
+    };
   }
 
   onNext = () => {
@@ -161,18 +143,13 @@ class ProductPublish extends Component<ProductPublishProps, ProductPublishState>
     const current = this.state.current - 1;
     this.setState({ current });
   };
-  
-  handleSubmit = (e: React.FormEvent) => {
 
-  };
+  handleSubmit = (e: React.FormEvent) => {};
 
-  handleChangeSku = () => {
-    
-  }
+  handleChangeSku = () => {};
 
   render() {
     const { current } = this.state;
-    
 
     return (
       <GridContent>
@@ -187,14 +164,16 @@ class ProductPublish extends Component<ProductPublishProps, ProductPublishState>
               <ProdPublishForm></ProdPublishForm>
               <div className={styles.stepsFooter}>
                 {current > 0 && (
-                  <Button style={{ marginRight: 8 }} onClick={this.onPrev}>上一步</Button>
+                  <Button style={{ marginRight: 8 }} onClick={this.onPrev}>
+                    上一步
+                  </Button>
                 )}
                 {current < steps.length - 1 && (
-                  <Button type="primary" onClick={this.onNext}>下一步</Button>
+                  <Button type="primary" onClick={this.onNext}>
+                    下一步
+                  </Button>
                 )}
-                {current === steps.length -1 && (
-                  <Button type="primary">完成</Button>
-                )}
+                {current === steps.length - 1 && <Button type="primary">完成</Button>}
               </div>
             </div>
           </Col>

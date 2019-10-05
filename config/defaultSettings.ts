@@ -40,6 +40,7 @@ export interface DefaultSettings {
   // Usage: https://github.com/ant-design/ant-design-pro/pull/3517
   iconfontUrl: string;
   colorWeak: boolean;
+  imgServerUrl: string;
 }
 
 export default {
@@ -57,4 +58,5 @@ export default {
   title: 'KHETAO',
   pwa: false,
   iconfontUrl: '',
+  imgServerUrl: 'http://img.khetao.com/',
 } as DefaultSettings;

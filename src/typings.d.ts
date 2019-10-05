@@ -39,9 +39,8 @@ interface Window {
 
 /** token 载体 */
 interface JwtPayload {
-
   /** 用户id */
-  uid: number|string;
+  uid: number | string;
   /** 签发者 */
   iss: string;
   /** 用户名 */
@@ -57,7 +56,15 @@ interface JwtPayload {
   /** 签发时间 */
   iat: number;
   /** 权限 */
-  authorities: string|string[];
+  authorities: string | string[];
+}
+
+type MediaFileType = 'VEDIO' | 'IMG';
+
+interface MediaFile {
+  id: string | number;
+  type: MediaFileType;
+  path: string;
 }
 
 declare let ga: Function;

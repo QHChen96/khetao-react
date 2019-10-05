@@ -2,7 +2,6 @@ import { Row, Col, Card, Table, Button, Avatar, message, Icon, Popconfirm } from
 import React, { Component } from 'react';
 
 import { GridContent } from '@ant-design/pro-layout';
-import { Dispatch } from 'redux';
 import { connect } from 'dva';
 
 import { Category } from './data.d';
@@ -11,6 +10,8 @@ import CategoryForm from './category-form';
 import { StateType } from './model';
 
 import { sortBy, find, filter } from 'lodash';
+import { getImg, getUploadFiles } from '@/utils/utils';
+import { Dispatch } from '@/models/connect';
 
 class CateTable extends Table<Category> {}
 class CateColumn extends Table.Column<Category> {}
@@ -22,8 +23,8 @@ interface CategoryState {
 }
 
 interface CategoryProps {
-  loading: boolean; 
-  dispatch: Dispatch<any>;
+  loading: boolean;
+  dispatch: Dispatch;
   categoryList: StateType;
 }
 @connect(
@@ -38,18 +39,15 @@ interface CategoryProps {
   }) => ({
     categoryList,
     loading: loading.models.category,
-  })
+  }),
 )
-class CategoryList extends Component<
-  CategoryProps,
-  CategoryState
-> {
+class CategoryList extends Component<CategoryProps, CategoryState> {
   maxLevel = 3;
   state = {
     maxLevel: 3,
     currentCate: {},
-    parentList: []
-  }
+    parentList: [],
+  };
 
   componentDidMount() {
     const { dispatch } = this.props;
@@ -58,16 +56,18 @@ class CategoryList extends Component<
     });
   }
 
-  createNewCate = (e: React.MouseEvent<HTMLElement>, parentId: number|string) => {
+  createNewCate = (e: React.MouseEvent<HTMLElement>, parentId: number | string) => {
     e.preventDefault();
 
-    const { data: { list } } = this.props.categoryList;
+    const {
+      data: { list },
+    } = this.props.categoryList;
     const parentList = filter(list, ele => ele.level < this.maxLevel);
     this.setState({
       currentCate: { parentId: parentId },
       parentList: parentList,
     });
-  }
+  };
 
   handleDelete = (e: React.MouseEvent<HTMLElement>, record: Category) => {
     e.preventDefault();
@@ -79,13 +79,13 @@ class CategoryList extends Component<
     if (isParent) {
       message.error('请删除子类后再试!');
       return;
-    } 
+    }
     const { dispatch } = this.props;
     dispatch({
       type: 'categoryList/delete',
-      payload: id
+      payload: id,
     });
-  }
+  };
 
   handleEditCate = (e: React.MouseEvent<HTMLElement>, record: Category) => {
     e.preventDefault();
@@ -93,89 +93,108 @@ class CategoryList extends Component<
     if (!id) {
       return;
     }
-    const { data: { list } } = this.props.categoryList;
+    const {
+      data: { list },
+    } = this.props.categoryList;
     if (!list || list.length === 0) {
       return;
     }
-    const cate = find(list, ele => ele.id === id);
+    let cate = find(list, ele => ele.id === id) as Category;
     if (!cate) {
       return;
     }
+    cate = { ...cate, imageFiles: getUploadFiles(cate.icon) };
     const parentList = filter(list, ele => ele.level < this.maxLevel && ele.id != cate.id);
     this.setState({
       currentCate: cate,
       parentList: parentList,
     });
-  }
+  };
 
   handleUpdateCate = (category: Partial<Category>) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'categoryList/save',
       payload: category,
+      callback: () => {
+        message.success('操作成功!');
+      },
     });
-  }
+  };
 
   render() {
-    const { 
+    const {
       categoryList: { data },
-      loading 
+      loading,
     } = this.props;
-    const { currentCate={}, parentList=[] } = this.state;
+    const { currentCate = {}, parentList = [] } = this.state;
     let datasource: Category[] = [];
     if (data && data.list) {
-      const flist:Category[] = data.list.filter(e => e.parentId >= 0);
-      datasource = arrayToTree(
-        sortBy(flist, ele => -ele.priority), {
-          parentProperty: 'parentId',
-          customID: 'id'
+      const flist: Category[] = data.list.filter(e => e.parentId >= 0);
+      datasource = arrayToTree(sortBy(flist, ele => -ele.priority), {
+        parentProperty: 'parentId',
+        customID: 'id',
       });
     }
     return (
       <GridContent>
         <Row gutter={24}>
           <Col lg={16} md={24}>
-           
             <Card bordered={false} loading={loading}>
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 style={{ marginBottom: 16 }}
-                onClick={ (e) => this.createNewCate(e, 0) }>
+                onClick={e => this.createNewCate(e, 0)}
+              >
                 添加分类
               </Button>
               {!loading ? (
-                <CateTable 
-                  dataSource={datasource} 
-                  rowKey="id"
-                  
-                >
-                  <CateColumn key="id" title="ID" dataIndex="id"/>
-                  <CateColumn key="imageUrls" title="图标" dataIndex="imageUrls" render={
-                    (imageUrls) =>
-                    (imageUrls && imageUrls.length > 0) && (<Avatar size={52} src={imageUrls[0].url} shape="square"/>)
-                      || (<Avatar size={52} shape="square"/>)
-                  }/>
-                  <CateColumn key="cateName" title="分类名称" dataIndex="cateName"/>
-                  <CateColumn key="i18n" title="国际化" dataIndex="i18n"/>
-                  <CateColumn key="priority" title="排序" dataIndex="priority"/>
-                  <CateColumn align="center" key="operation" title="操作" dataIndex="operation" 
-                    render={(text, record, index) =>
-                      (<span>
-                        <Button 
-                          size="small" 
-                          type="link" 
-                          disabled={ record.level >= this.maxLevel }
-                          onClick={ (e) => this.createNewCate(e, record.id as number) }>添加</Button>
-                        <Button size="small" type="link" onClick={(e) => this.handleEditCate(e, record)}>编辑</Button>
+                <CateTable dataSource={datasource} rowKey="id">
+                  <CateColumn key="id" title="ID" dataIndex="id" />
+                  <CateColumn
+                    key="icon"
+                    title="图标"
+                    dataIndex="icon"
+                    render={icon => <Avatar size={52} src={getImg(icon)} shape="square" />}
+                  />
+                  <CateColumn key="cateName" title="分类名称" dataIndex="cateName" />
+                  <CateColumn key="i18n" title="国际化" dataIndex="i18n" />
+                  <CateColumn key="priority" title="排序" dataIndex="priority" />
+                  <CateColumn
+                    align="center"
+                    key="operation"
+                    title="操作"
+                    dataIndex="operation"
+                    render={(text, record, index) => (
+                      <span>
+                        <Button
+                          size="small"
+                          type="link"
+                          disabled={record.level >= this.maxLevel}
+                          onClick={e => this.createNewCate(e, record.id as number)}
+                        >
+                          添加
+                        </Button>
+                        <Button
+                          size="small"
+                          type="link"
+                          onClick={e => this.handleEditCate(e, record)}
+                        >
+                          编辑
+                        </Button>
                         <Popconfirm
                           title="确认要删除吗？"
                           icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
-                          onConfirm={e => this.handleDelete(e as React.MouseEvent<HTMLElement>, record)}
+                          onConfirm={e =>
+                            this.handleDelete(e as React.MouseEvent<HTMLElement>, record)
+                          }
                         >
-                          <Button size="small" type="link">删除</Button>
+                          <Button size="small" type="link">
+                            删除
+                          </Button>
                         </Popconfirm>
-                      </span>)
-                    }
+                      </span>
+                    )}
                   />
                 </CateTable>
               ) : null}
@@ -183,21 +202,19 @@ class CategoryList extends Component<
           </Col>
           <Col lg={8} md={24}>
             <Card title="分类信息">
-              {
-                currentCate && (
-                  <CategoryForm 
-                    currentCate={ currentCate }
-                    handleUpdate={ this.handleUpdateCate }
-                    parentList={ parentList }></CategoryForm>
-                )
-              }
+              {currentCate && (
+                <CategoryForm
+                  currentCate={currentCate}
+                  handleUpdate={this.handleUpdateCate}
+                  parentList={parentList}
+                ></CategoryForm>
+              )}
             </Card>
           </Col>
         </Row>
       </GridContent>
     );
   }
-
 }
 
 export default CategoryList;

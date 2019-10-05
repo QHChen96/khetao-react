@@ -1,17 +1,18 @@
-import React, { Component, Fragment } from "react";
+import React, { Component, Fragment } from 'react';
 import { Dispatch } from 'redux';
- 
-import { connect } from "dva";
-import { Button, Table, Avatar, Popconfirm, Icon, Modal } from "antd";
 
-import arrayToTree from "array-to-tree";
+import { connect } from 'dva';
+import { Button, Table, Avatar, Popconfirm, Icon, Modal } from 'antd';
+
+import arrayToTree from 'array-to-tree';
 import { sortBy, find } from 'lodash';
-import CustomCategoryForm, { BasicCustomCategoryForm } from "./customCategoryForm";
+import CustomCategoryForm, { BasicCustomCategoryForm } from './customCategoryForm';
 import { StateType } from '../../../model';
 import { CustomCategory } from '../../../data';
 import { CurrentShop } from '@/models/shop';
-import { ShopModelState } from '../../../../../models/shop';
-
+import { ShopModelState } from '@/models/shop';
+import { getUploadFiles } from '../../../../../utils/utils';
+import { getImg } from '@/utils/utils';
 
 interface CustomCategoryState {
   modalVisible: boolean;
@@ -20,7 +21,7 @@ interface CustomCategoryState {
 }
 
 interface CustomCategoryProps {
-  // loading: boolean; 
+  // loading: boolean;
   dispatch?: Dispatch<any>;
   customCategory?: StateType;
   currentShop?: CurrentShop;
@@ -29,12 +30,11 @@ interface CustomCategoryProps {
 class CateTable extends Table<CustomCategory> {}
 class CateColumn extends Table.Column<CustomCategory> {}
 
-@connect(({ customCategory, shop }: {customCategory: StateType, shop: ShopModelState}) => ({
+@connect(({ customCategory, shop }: { customCategory: StateType; shop: ShopModelState }) => ({
   customCategory,
-  currentShop:shop.currentShop
+  currentShop: shop.currentShop,
 }))
 class CustomCategoryList extends Component<CustomCategoryProps, CustomCategoryState> {
-
   cateformRef: BasicCustomCategoryForm | undefined = undefined;
 
   maxLevel = 2;
@@ -42,8 +42,8 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
   state = {
     modalVisible: false,
     currentCate: {},
-    parentCates: []
-  }
+    parentCates: [],
+  };
 
   constructor(props: CustomCategoryProps) {
     super(props);
@@ -56,20 +56,21 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
         type: 'customCategory/fetch',
       });
     }
-    
   }
 
   handleCreate = (e: React.MouseEvent<HTMLElement>, parentId: number) => {
     e.preventDefault();
-    const { id:shopId } = this.props.currentShop as CurrentShop;
-    const { customCategoryData:{list} } = this.props.customCategory as StateType;
+    const { id: shopId } = this.props.currentShop as CurrentShop;
+    const {
+      customCategoryData: { list },
+    } = this.props.customCategory as StateType;
     const parentCates = list.filter(cate => cate.level < this.maxLevel);
     this.setState({
       currentCate: { parentId, shopId },
       modalVisible: true,
-      parentCates
+      parentCates,
     });
-  }
+  };
 
   handleDelete = (e: React.MouseEvent<HTMLElement>, record: CustomCategory) => {
     e.preventDefault();
@@ -80,19 +81,22 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
         payload: record.id,
       });
     }
-  }
+  };
 
   handleEditCate = (e: React.MouseEvent<HTMLElement>, record: CustomCategory) => {
     e.preventDefault();
-    const { customCategoryData:{list} } = this.props.customCategory as StateType;
+    const {
+      customCategoryData: { list },
+    } = this.props.customCategory as StateType;
     const parentCates = list.filter(cate => cate.level < this.maxLevel);
-    const currentCate = find(list, cate => cate.id == record.id) as CustomCategory;
+    let currentCate = find(list, cate => cate.id == record.id) as CustomCategory;
+    currentCate = { ...currentCate, imageFiles: getUploadFiles(currentCate.icon) };
     this.setState({
       currentCate: currentCate,
       modalVisible: true,
-      parentCates
+      parentCates,
     });
-  }
+  };
 
   handleUpdate = (cate: Partial<CustomCategory>) => {
     const { dispatch } = this.props;
@@ -105,80 +109,85 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
         modalVisible: false,
       });
     }
-  }
-
+  };
 
   handleClose = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     this.setState({
-      modalVisible: false
+      modalVisible: false,
     });
-  }
-
-
+  };
 
   render() {
-    const { currentCate={}, parentCates=[], modalVisible } = this.state;
-    const { customCategoryData:{list} } = this.props.customCategory as StateType;
-    const datasource: CustomCategory[] = []
+    const { currentCate = {}, parentCates = [], modalVisible } = this.state;
+    const {
+      customCategoryData: { list },
+    } = this.props.customCategory as StateType;
+    const datasource: CustomCategory[] = [];
     if (list) {
-      const flist:CustomCategory[] = list.filter(e => e.parentId >= 0);
-      datasource.push(...arrayToTree(
-        sortBy(flist, ele => -ele.priority), {
+      const flist: CustomCategory[] = list.filter(e => e.parentId >= 0);
+      datasource.push(
+        ...arrayToTree(sortBy(flist, ele => -ele.priority), {
           parentProperty: 'parentId',
-          customID: 'id'
-      }));
-    };
-    
+          customID: 'id',
+        }),
+      );
+    }
+
     return (
       <Fragment>
-        <Button 
-          type="primary" 
-          style={{ marginBottom: 16 }}
-          onClick={ (e) => this.handleCreate(e, 0) }>
+        <Button type="primary" style={{ marginBottom: 16 }} onClick={e => this.handleCreate(e, 0)}>
           添加分类
         </Button>
-        <CateTable 
-          dataSource={datasource}
-          rowKey="id"
-        >
+        <CateTable dataSource={datasource} rowKey="id">
           <CateColumn key="id" title="ID" dataIndex="id"></CateColumn>
-          <CateColumn key="imageUrls" title="图标" dataIndex="imageUrls" 
-            render={
-              (imageUrls) =>
-              (imageUrls && imageUrls.length > 0) && (<Avatar size={52} src={imageUrls[0].url} shape="square"/>)
-                || (<Avatar size={52} shape="square"/>)
-            }/>
-          <CateColumn key="cateName" title="分类名称" dataIndex="cateName"/>
-          <CateColumn key="i18n" title="国际化" dataIndex="i18n"/>
-          <CateColumn key="priority" title="排序" dataIndex="priority"/>
-          <CateColumn align="center" key="operation" title="操作" dataIndex="operation" 
-            render={(text, record, index) =>
-              (<span>
-                <Button 
-                  size="small" 
-                  type="link" 
-                  disabled={ record.level >= this.maxLevel }
-                  onClick={ (e) => this.handleCreate(e, record.id as number) }>添加</Button>
-                <Button size="small" type="link" onClick={(e) => this.handleEditCate(e, record)}>编辑</Button>
+          <CateColumn
+            key="icon"
+            title="图标"
+            dataIndex="icon"
+            render={icon => <Avatar size={52} src={getImg(icon)} shape="square" />}
+          />
+          <CateColumn key="cateName" title="分类名称" dataIndex="cateName" />
+          <CateColumn key="i18n" title="国际化" dataIndex="i18n" />
+          <CateColumn key="priority" title="排序" dataIndex="priority" />
+          <CateColumn
+            align="center"
+            key="operation"
+            title="操作"
+            dataIndex="operation"
+            render={(text, record, index) => (
+              <span>
+                <Button
+                  size="small"
+                  type="link"
+                  disabled={record.level >= this.maxLevel}
+                  onClick={e => this.handleCreate(e, record.id as number)}
+                >
+                  添加
+                </Button>
+                <Button size="small" type="link" onClick={e => this.handleEditCate(e, record)}>
+                  编辑
+                </Button>
                 <Popconfirm
                   title="确认要删除吗？"
                   icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
                   onConfirm={e => this.handleDelete(e as React.MouseEvent<HTMLElement>, record)}
                 >
-                  <Button size="small" type="link">删除</Button>
+                  <Button size="small" type="link">
+                    删除
+                  </Button>
                 </Popconfirm>
-              </span>)
-            }
+              </span>
+            )}
           />
         </CateTable>
-        <Modal 
+        <Modal
           width={480}
           destroyOnClose
-          title={currentCate && '编辑分类' || '新建分类'}
+          title={(currentCate && '编辑分类') || '新建分类'}
           visible={modalVisible}
-          onOk={(e) => this.cateformRef.handleSubmit(e)}
-          onCancel={(e) => this.handleClose(e)}
+          onOk={e => this.cateformRef && this.cateformRef.handleSubmit(e)}
+          onCancel={e => this.handleClose(e)}
         >
           <CustomCategoryForm
             wrappedComponentRef={(form: BasicCustomCategoryForm) => (this.cateformRef = form)}
@@ -188,9 +197,8 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
           />
         </Modal>
       </Fragment>
-    )
+    );
   }
-
 }
 
 export default CustomCategoryList;

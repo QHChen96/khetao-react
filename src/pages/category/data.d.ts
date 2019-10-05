@@ -1,9 +1,10 @@
-import { UploadFile } from "antd/lib/upload/interface";
+import { UploadFile } from 'antd/lib/upload/interface';
 
 export interface Category {
   id: number | string;
   cateName: string;
-  imageUrls: UploadFile[];
+  imageFiles?: UploadFile[];
+  icon?: string;
   i18n?: string;
   level: number;
   parentId: number | string;
@@ -14,7 +15,7 @@ export interface Category {
 }
 
 export interface ImageFile extends Partial<UploadFile> {
-  uid: string,
+  uid: string;
   name: string;
   url: string;
   size: number;
@@ -24,6 +25,4 @@ export interface CategoryListData {
   list: Category[];
 }
 
-export interface CategoryListParams {
-
-}
+export interface CategoryListParams {}

@@ -9,6 +9,7 @@ import { ConnectProps, ConnectState } from '@/models/connect';
 import { CurrentUser } from '@/models/user';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
+import { getImg } from '@/utils/utils';
 
 export interface GlobalHeaderRightProps extends ConnectProps {
   currentUser?: CurrentUser;
@@ -25,12 +26,11 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
           type: 'login/logout',
         });
       }
-      
+
       return;
     }
     router.push(`/account/${key}`);
   };
-
 
   render(): React.ReactNode {
     const { currentUser = {}, menu } = this.props;
@@ -63,7 +63,12 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
     return currentUser && currentUser.nickName ? (
       <HeaderDropdown overlay={menuHeaderDropdown}>
         <span className={`${styles.action} ${styles.account}`}>
-          <Avatar size="small" className={styles.avatar} src={currentUser.avatar} alt="avatar" />
+          <Avatar
+            size="small"
+            className={styles.avatar}
+            src={getImg(currentUser.avatar)}
+            alt="avatar"
+          />
           <span className={styles.name}>{currentUser.nickName}</span>
         </span>
       </HeaderDropdown>

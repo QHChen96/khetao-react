@@ -1,4 +1,4 @@
-import { UploadFile } from "antd/lib/upload/interface";
+import { UploadFile } from 'antd/lib/upload/interface';
 
 export interface Shop {
   id?: number;
@@ -13,7 +13,8 @@ export interface Shop {
 export interface CustomCategory {
   id: number | string;
   cateName: string;
-  imageUrls: UploadFile[];
+  imageFiles?: UploadFile[];
+  icon?: string;
   i18n?: string;
   level: number;
   parentId: number | string;
@@ -28,6 +29,4 @@ export interface CustomCategoryListData {
   list: CustomCategory[];
 }
 
-export interface CustomCategoryListParams {
-
-}
+export interface CustomCategoryListParams {}

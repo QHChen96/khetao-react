@@ -1,0 +1,102 @@
+@import '~antd/es/style/themes/default.less';
+
+.productSku {
+  width: 668px;
+  .productSkuApply {
+    margin-bottom: 20px;
+    .productSkuApplyWrapper {
+      display: block;
+      .productSkuApplyPrice {
+        float: left;
+        width: 185px;
+        max-width: 185px;
+      }
+      .productSkuApplyStock {
+        float: left;
+        width: 185px;
+        max-width: 185px;
+      }
+      .productSkuApplySku {
+        float: left;
+        width: 185px;
+        max-width: 185px;
+        border-radius: 0;
+      }
+      .productSkuApplyButtonWrapper {
+        float: left;
+        margin-left: 12px;
+        .productSkuApplyButton {
+          width: 100px;
+          text-align: center;
+          color: #fafafa;
+          background-color: #1791f2;
+          border: 1px dashed #1379d2;
+        }
+      }
+      .clearFloat {
+        *zoom: 1;
+        &::after {
+          content: '';
+          display: block;
+          height: 0;
+          clear: both;
+          visibility: hidden;
+        }
+      }
+    }
+  }
+  .productSkuPanel {
+    width: 100%;
+
+    .productSkuTable {
+      .tableHeader {
+        display: flex;
+        background-color: #fafafa;
+        color: #999;
+      }
+      .tableBody {
+        display: flex;
+        flex-wrap: wrap;
+        .tableRow {
+          display: flex;
+          width: 100%;
+
+          &.isLast {
+            .tableCell {
+              border-bottom-width: 1px;
+            }
+          }
+          &.isLast {
+            .tableCells {
+              border-bottom-width: 1px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+.tableCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #ebebeb;
+  border-bottom-width: 0;
+  border-right-width: 0;
+}
+.tableCells {
+  display: flex;
+  flex: 3;
+  word-break: break-word;
+  :global(.ant-input) {
+    border: none;
+    height: 36px;
+    border-radius: 0;
+  }
+  .tableCell:last-child {
+    border-right-width: 1px;
+  }
+}

@@ -10,21 +10,20 @@ import PhoneView from './PhoneView';
 import styles from './BaseView.less';
 import { Dispatch } from 'redux';
 import { ConnectState } from '@/models/connect';
-
-
+import { getImg } from '@/utils/utils';
+import { UploadFileResp } from '@/typings';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 
-interface UploadFile {
-  data: object;
-  file: File;
-  headers: object;
-  filename: string;
-}
-
 // 头像组件 方便以后独立，增加裁剪之类的功能
-const AvatarView = ({ avatar, customRequest }: { avatar: string, customRequest: (object: object) => void }) => (
+const AvatarView = ({
+  avatar,
+  customRequest,
+}: {
+  avatar: string;
+  customRequest: (object: object) => void;
+}) => (
   <Fragment>
     <div className={styles.avatar_title}>
       <FormattedMessage id="account-settings.basic.avatar" defaultMessage="Avatar" />
@@ -32,13 +31,13 @@ const AvatarView = ({ avatar, customRequest }: { avatar: string, customRequest: 
     <div className={styles.avatar}>
       <img src={avatar} alt="avatar" />
     </div>
-    <Upload 
-      customRequest={customRequest}
-      accept="image/*"
-      fileList={[]} >
+    <Upload customRequest={customRequest} accept="image/png,image/jpg" fileList={[]}>
       <div className={styles.button_view}>
         <Button icon="upload">
-          <FormattedMessage id="account-settings.basic.change-avatar" defaultMessage="Change avatar" />
+          <FormattedMessage
+            id="account-settings.basic.change-avatar"
+            defaultMessage="Change avatar"
+          />
         </Button>
       </div>
     </Upload>
@@ -108,7 +107,7 @@ class BaseView extends Component<BaseViewProps> {
     const { currentUser } = this.props;
     if (currentUser) {
       if (currentUser.avatar) {
-        return currentUser.avatar;
+        return getImg(currentUser.avatar);
       }
       const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
       return url;
@@ -121,28 +120,28 @@ class BaseView extends Component<BaseViewProps> {
   };
 
   customRequest = (object: object) => {
-    const { file } = object as UploadFile;
+    const { file } = object as UploadFileResp;
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
         type: 'user/uploadAvatar',
-        payload: file
-      })
+        payload: file,
+      });
     }
-  }
-  
+  };
 
   handlerSubmit = (event: React.MouseEvent) => {
     event.preventDefault();
-    const { form, dispatch, currentUser={} } = this.props;
+    const { form, dispatch, currentUser = {} } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
         if (dispatch) {
           const user = { ...currentUser, ...values };
-          dispatch && dispatch({
-            type: 'user/saveCurrentUser',
-            payload: user
-          })
+          dispatch &&
+            dispatch({
+              type: 'user/saveCurrentUser',
+              payload: user,
+            });
         }
         message.success(formatMessage({ id: 'account-settings.basic.update.success' }));
       }
@@ -241,12 +240,15 @@ class BaseView extends Component<BaseViewProps> {
               })(<PhoneView />)}
             </FormItem>
             <Button type="primary" onClick={this.handlerSubmit}>
-              <FormattedMessage id="account-settings.basic.update" defaultMessage="Update Information" />
+              <FormattedMessage
+                id="account-settings.basic.update"
+                defaultMessage="Update Information"
+              />
             </Button>
           </Form>
         </div>
         <div className={styles.right}>
-          <AvatarView avatar={this.getAvatarURL()} customRequest={this.customRequest}/>
+          <AvatarView avatar={this.getAvatarURL()} customRequest={this.customRequest} />
         </div>
       </div>
     );
