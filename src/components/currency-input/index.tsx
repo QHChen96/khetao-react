@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Input } from 'antd';
 
 export interface CurrencyInputProps {
-  value?: string;
+  value?: string | number;
   currency: string;
   className?: any;
   placeholder?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value: string|number) => void;
 }
 
 class CurrencyInput extends Component<CurrencyInputProps> {

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Input } from 'antd';
 
 export interface IntegerInputProps {
-  value?: string;
+  value?: string | number;
   className?: any;
   placeholder?: string;
   onChange?: (value: string) => void;

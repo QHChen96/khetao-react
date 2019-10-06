@@ -104,10 +104,11 @@ export interface ProductSkuPropValue {
 export interface ProductSku {
   id?: number | string;
   key?: number | string;
-  skuCode: number | undefined;
-  price: number | undefined;
-  stock: number | undefined;
+  skuCode?: string;
+  price?: number | string;
+  stock?: number | string;
   skuName?: string;
+  propValues?: ProductSkuPropValue[];
 }
 
 export interface ProductDimension {

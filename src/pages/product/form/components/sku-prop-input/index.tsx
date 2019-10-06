@@ -201,8 +201,7 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
                       icon="plus-circle"
                       onClick={e => this.handleAddPropValue(e, index)}
                     >
-                      添加属性值
-                    </Button>
+                     </Button>
                   </div>
                 </div>
               </div>
