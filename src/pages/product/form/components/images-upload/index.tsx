@@ -5,6 +5,7 @@ import styles from './style.less';
 import { UploadFile, RcFile } from 'antd/lib/upload/interface';
 import { isEqual, uniqueId } from 'lodash';
 import { uploadProductImg } from '@/pages/product/service';
+import { getImg } from '@/utils/utils';
 
 export interface ProductImagesUploadProps {
   value?: string[];
@@ -38,8 +39,8 @@ function beforeUpload(file: any) {
 class ProductImagesUpload extends Component<ProductImagesUploadProps, ProductImagesUploadState> {
   state = {
     loading: false,
-    fileList: [],
-    value: [],
+    fileList: [] as UploadFile[],
+    value: [] as string[],
   };
 
   static getDerivedStateFromProps(
@@ -53,7 +54,7 @@ class ProductImagesUpload extends Component<ProductImagesUploadProps, ProductIma
         value: nextProps.value,
         fileList: value.map((url: string) => ({
           uid: uniqueId(),
-          url: url,
+          url: getImg(url),
           status: 'done',
         })),
       };
@@ -67,21 +68,21 @@ class ProductImagesUpload extends Component<ProductImagesUploadProps, ProductIma
 
   customRequest = (e: any) => {
     uploadProductImg(e.file as RcFile).then((res: any) => {
-      const url = res.data.url as string;
-      const { fileList, value } = this.state;
+      const name = res.data.name as string;
+      const { fileList=[], value=[] } = this.state;
       const index = fileList.findIndex((n: UploadFile) => n.uid === e.file.uid);
       if (index > -1) {
-        fileList[index].url = url;
+        fileList[index].url = getImg(name);
         fileList[index].status = 'done';
-        value[index] = url;
+        value[index] = name;
       } else {
         fileList.push({
           ...e.file,
           status: 'done',
-          url: url,
+          url: getImg(name),
           uid: uniqueId(),
         });
-        value.push(url);
+        value.push(name);
       }
       const { onChange } = this.props;
       if (onChange) {
@@ -98,7 +99,7 @@ class ProductImagesUpload extends Component<ProductImagesUploadProps, ProductIma
   handleRemove = (file: UploadFile) => {
     const { fileList, value } = this.state;
     const newFileList = fileList.filter((e: UploadFile) => e.uid !== file.uid);
-    const newValue = value.filter((url: string) => url !== file.url);
+    const newValue = value.filter((url: string) => getImg(url) !== file.url);
     const { onChange } = this.props;
     if (onChange) {
       onChange(newValue);

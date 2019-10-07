@@ -93,12 +93,14 @@ export interface ProductSkuProp {
   images?: string[] | undefined;
   propName?: string | undefined;
   propValues?: ProductSkuPropValue[] | undefined;
+  isError?: boolean;
 }
 
 export interface ProductSkuPropValue {
   id?: string | number;
   key?: string | number;
-  value: string | undefined;
+  value?: string;
+  isError?: boolean;
 }
 
 export interface ProductSku {

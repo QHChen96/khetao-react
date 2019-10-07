@@ -4,7 +4,7 @@ import { Row, Col, Form, Card, Button, Input } from 'antd';
 
 import styles from './style.less';
 import { FormComponentProps } from 'antd/es/form';
-import { ProductSpu } from '../data';
+import { ProductSpu, ProductSku, ProductSkuProp } from '../data';
 
 import ProductSkuPropInput from './components/sku-prop-input';
 import ProductSkuList from './components/sku-list/';
@@ -16,6 +16,7 @@ import ProductImagesUpload from '@/pages/product/form/components/images-upload';
 import ProductPropImagesUpload from './components/prop-images-upload';
 import ProductWholesalesInput from './components/wholesales-input';
 import UnitInput from '../../../components/unit-input/index';
+
 
 const { Item: FormItem } = Form;
 
@@ -68,26 +69,55 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
 
   componentDidMount() {}
 
+  handleSubmitAndPubish(e: React.MouseEvent<HTMLElement, MouseEvent>): void {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log('Received values of form: ', values);
+      }
+    });
+  }
+  handleSubmitAndDelist(e: React.MouseEvent<HTMLElement, MouseEvent>): void {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log('Received values of form: ', values);
+      }
+    });
+  }
+  handleCancel(e: React.MouseEvent<HTMLElement, MouseEvent>): void {
+    e.preventDefault();
+    this.props.form.resetFields();
+  }
+
   render() {
     const { localConfig = { currency: 'USD' } } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { product } = this.state;
+
+    const skuProps = [{key: '22323',propName: 'color', propValues: [{key:'333', value: '红'}]}] as ProductSkuProp;
+    const skus = [{id: "110", key: '4223', price: 1, skuName: '红', propValues: [{key:'333', value: '红'}]}] as ProductSku[];
 
     return (
       <GridContent>
         <Row gutter={24}>
           <Col span={20}>
             <Form {...formItemLayout}>
+              {
+                getFieldDecorator('id', {
+                  initialValue: product.id
+                })
+              }
               <Card title={'基本信息'} {...cardProps}>
                 <FormItem label={'产品名'}>
                   {getFieldDecorator('productName', {
-                    rules: [{ required: true, message: '请输入产品名称' }],
+                    // rules: [{ required: true, message: '请输入产品名称' }],
                     initialValue: product.productName,
                   })(<Input />)}
                 </FormItem>
                 <FormItem label={'所属类目'}>
                   {getFieldDecorator('categoryPath', {
-                    rules: [{ required: true, message: '请选择所属类目' }],
+                    // rules: [{ required: true, message: '请选择所属类目' }],
                     initialValue: product.categoryPath,
                   })}
                   <span>服装饰品 > 男装 > T恤</span>
@@ -103,7 +133,7 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
               </Card>
 
               <Card title={'销售信息'} {...cardProps}>
-                {(!getFieldValue('wholesales') || getFieldValue('wholesales').length === 0) && (
+                {(!getFieldValue('skuProps') || getFieldValue('skuProps').length === 0) && (
                   <Fragment>
                     <FormItem label={'价格'} required>
                       {getFieldDecorator('price', {
@@ -126,14 +156,14 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
 
                 <FormItem label={'销售属性'}>
                   {getFieldDecorator('skuProps', {
-                    initialValue: product.skuProps,
+                    initialValue: skuProps,
                   })(<ProductSkuPropInput />)}
                 </FormItem>
 
                 <FormItem label={'库存列表'}>
                   {getFieldDecorator('skus', {
-                    initialValue: product.skus,
-                  })(<ProductSkuList />)}
+                    initialValue: skus,
+                  })(<ProductSkuList skuProps={getFieldValue('skuProps')}/>)}
                 </FormItem>
 
                 <FormItem label={'批发属性'}>
@@ -141,6 +171,11 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
                     initialValue: product.wholesales,
                   })(<ProductWholesalesInput />)}
                 </FormItem>
+                {
+                  getFieldDecorator('useWholesale', {
+                    initialValue: getFieldValue('wholesales') && getFieldValue('wholesales').length > 0 || false
+                  })
+                }
               </Card>
 
               <Card title={'图片管理'} {...cardProps}>
@@ -171,18 +206,20 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
                 </FormItem>
               </Card>
               <Card title={'其他'} {...cardProps}></Card>
+
+              <FormItem>
+                <Button className={styles.optionButton} onClick={(e) => this.handleCancel(e)}>取消</Button>
+                <Button className={styles.optionButton} onClick={(e) => this.handleSubmitAndDelist(e)}>保存并下架</Button>
+                <Button className={styles.optionButton} type="primary" onClick={(e) => this.handleSubmitAndPubish(e)}>保存并发布</Button>
+              </FormItem>
             </Form>
-            <div>
-              <Button>取消</Button>
-              <Button>保存并下架</Button>
-              <Button type="primary">保存并发布</Button>
-            </div>
           </Col>
           <Col span={4}>{/* 帮助 */}</Col>
         </Row>
       </GridContent>
     );
   }
+  
 }
 
 export default Form.create({ name: 'productForm' })(ProductForm);

@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { ProductSkuProp, ProductSkuPropValue } from '../../../data';
 import styles from './style.less';
-import { Button, Icon, Input } from 'antd';
-import { isEqual, uniqueId } from 'lodash';
+import { Button, Icon, Input, Tooltip } from 'antd';
+import { isEqual, uniqueId, findIndex, find } from 'lodash';
+import classNames from 'classnames';
 
 export interface ProductSkuPropInputProps {
   value?: ProductSkuProp[];
@@ -31,15 +32,16 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
   }
 
   state = {
-    skuProps: [],
+    skuProps: []
   };
+
 
   handleAddProp(e: React.MouseEvent<HTMLElement, MouseEvent>): void {
     e.preventDefault();
     const newSkuProp = {
-      key: uniqueId(),
+      key: uniqueId('prop'),
       propName: '',
-      propValues: [{ key: uniqueId(), value: '' }],
+      propValues: [{ key: uniqueId('value'), value: '' }],
     };
     const { skuProps = [] } = this.state;
     const newSkuProps = [...skuProps, newSkuProp];
@@ -54,10 +56,12 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
 
   handleAddPropValue(e: React.MouseEvent<HTMLElement, MouseEvent>, index: number): void {
     e.preventDefault();
-    const newPropValue = { key: uniqueId(), value: '' };
+    const newPropValue = { key: uniqueId('value'), value: '' };
     const { skuProps = [] } = this.state;
-    const newSkuProps = [...skuProps];
-    ((newSkuProps[index] as ProductSkuProp).propValues as ProductSkuPropValue[]).push(newPropValue);
+    const newSkuProps = skuProps.map((prop: ProductSkuProp) => ({...prop, propValues: [...prop.propValues as ProductSkuPropValue[]]})) as ProductSkuProp[];
+
+    const propValues = newSkuProps[index].propValues as ProductSkuPropValue[];
+    newSkuProps[index].propValues = [...propValues, newPropValue];
     const { onChange } = this.props;
     if (onChange) {
       onChange(newSkuProps);
@@ -106,32 +110,47 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
   handleChangePropValue(e: React.ChangeEvent<HTMLInputElement>, index: number, idx: number): void {
     e.preventDefault();
     const { skuProps = [] } = this.state;
-    const newSkuProps = [...skuProps] as ProductSkuProp[];
+    const newSkuProps = skuProps.map((prop: ProductSkuProp) => ({...prop, propValues: [...prop.propValues as ProductSkuPropValue[]]})) as ProductSkuProp[];
+    const propValues = newSkuProps[index].propValues as ProductSkuPropValue[];
 
-    ((newSkuProps[index].propValues as ProductSkuPropValue[])[idx] as ProductSkuPropValue).value =
-      e.target.value;
+    const oldErrorObj = find(propValues, (value: ProductSkuPropValue, i: number) => i !== idx && value.value === propValues[idx].value && value.isError) as ProductSkuPropValue;
+    if (oldErrorObj) {
+      oldErrorObj.isError = false;
+    }
 
+    const fi = propValues.findIndex((prop: ProductSkuPropValue) => prop.value && prop.value === e.target.value);
+    propValues[idx].value = e.target.value;
+
+    fi !== -1 && (propValues[idx].isError = true) || (propValues[idx].isError = false);
+    this.setState({
+      skuProps: newSkuProps,
+    });
     const { onChange } = this.props;
     if (onChange) {
       onChange(newSkuProps);
     }
-    this.setState({
-      skuProps: newSkuProps,
-    });
   }
 
   handleChangeProp(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     e.preventDefault();
     const { skuProps = [] } = this.state;
     const newSkuProps = [...skuProps] as ProductSkuProp[];
+
+    const oldErrorObj = find(newSkuProps, (prop: ProductSkuProp, i: number) => i !== index && prop.propName === newSkuProps[index].propName && prop.isError) as ProductSkuProp;
+    if (oldErrorObj) {
+      oldErrorObj.isError = false;
+    }
+
+    const fi = skuProps.findIndex((prop: ProductSkuProp) => prop.propName && prop.propName === e.target.value);
     newSkuProps[index].propName = e.target.value;
+    fi !== -1 && (newSkuProps[index].isError = true) || (newSkuProps[index].isError = false);
+    this.setState({
+      skuProps: newSkuProps,
+    });
     const { onChange } = this.props;
     if (onChange) {
       onChange(newSkuProps);
     }
-    this.setState({
-      skuProps: newSkuProps,
-    });
   }
 
   renderPropValue = (propValues: ProductSkuPropValue[], index: number) => {
@@ -140,10 +159,12 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
         <div className={styles.textRow} key={propValues[0].id || propValues[0].key}>
           <div className={styles.editTitle}>属性值</div>
           <div className={styles.editText}>
-            <Input
-              value={propValues[0].value}
-              onChange={e => this.handleChangePropValue(e, index, 0)}
-            />
+            <Tooltip placement="top" title="属性值重复" trigger="focus" visible={propValues[0].isError}>
+              <Input
+                value={propValues[0].value}
+                onChange={e => this.handleChangePropValue(e, index, 0)}
+              />
+            </Tooltip>
           </div>
         </div>
       );
@@ -151,11 +172,13 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
     return propValues.map((skuPropValue: ProductSkuPropValue, idx) => (
       <div className={styles.textRow} key={skuPropValue.id || skuPropValue.key}>
         <div className={styles.editTitle}>{(idx === 0 && '属性值') || ' '}</div>
-        <div className={styles.editText}>
-          <Input
-            value={skuPropValue.value}
-            onChange={e => this.handleChangePropValue(e, index, idx)}
-          />
+        <div className={classNames(styles.editText, styles.isError)}>
+          <Tooltip placement="top" title="属性值重复" trigger="focus" visible={skuPropValue.isError}>
+            <Input
+              value={skuPropValue.value}
+              onChange={e => this.handleChangePropValue(e, index, idx)}
+            />
+          </Tooltip>
         </div>
         {idx > 0 && (
           <div
@@ -186,10 +209,12 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
                 <div className={styles.textRow}>
                   <div className={styles.editTitle}>属性名</div>
                   <div className={styles.editText}>
-                    <Input
-                      value={skuProp.propName}
-                      onChange={e => this.handleChangeProp(e, index)}
-                    />
+                    <Tooltip placement="top" title="属性名重复" trigger="focus" visible={skuProp.isError}>
+                      <Input
+                        value={skuProp.propName}
+                        onChange={e => this.handleChangeProp(e, index)}
+                      />
+                    </Tooltip>
                   </div>
                 </div>
                 {this.renderPropValue(skuProp.propValues as ProductSkuPropValue[], index)}
@@ -201,7 +226,8 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
                       icon="plus-circle"
                       onClick={e => this.handleAddPropValue(e, index)}
                     >
-                     </Button>
+                      添加属性值  
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -218,6 +244,7 @@ class ProductSkuPropInput extends Component<ProductSkuPropInputProps, ProductSku
       </div>
     );
   }
+ 
 }
 
 export default ProductSkuPropInput;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ProductSku, ProductSkuProp, ProductSkuPropValue } from '../../../data';
-import { isEqual, uniqueId } from 'lodash';
+import { isEqual, uniqueId, reduce, each, find } from 'lodash';
 
 import styles from './style.less';
 import CurrencyInput from '@/components/currency-input';
@@ -9,10 +9,34 @@ import IntegerInput from '@/components/integer-input';
 import { Button } from 'antd/es/radio';
 import classNames from 'classnames';
 
+
+const reduceSku = (skuProps: ProductSkuProp[], isNew: boolean = true) => {
+  const skuPropValues: ProductSkuPropValue[][] = 
+    skuProps
+      .map(prop => prop.propValues) as ProductSkuPropValue[][];
+
+  const skus: ProductSku[] = reduce(skuPropValues, (result: ProductSku[], value: ProductSkuPropValue[]) => {
+    const ret:ProductSku[] = [];
+    each(result, (res: ProductSku) => {
+      each(value, (val: ProductSkuPropValue) => {
+        const { propValues=[], skuName='', key='' } = res;
+        ret.push({
+          ...res,
+          key: `${key}+${val.key}`,
+          skuName: skuName && `${skuName},${val.value}` || val.value,
+          propValues: propValues.concat(val)
+        });
+      });
+    });
+    return ret;
+  }, [{}] as ProductSku[]);
+  return skus;
+}
+
 export interface ProductSkuListProps {
   value?: ProductSku[];
   skuProps?: ProductSkuProp[];
-  onChange: (value: ProductSku[]) => void;
+  onChange?: (value: ProductSku[]) => void;
 }
 
 interface ProductSkuListState {
@@ -25,10 +49,26 @@ interface ProductSkuListState {
 
 class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState> {
   static getDerivedStateFromProps(nextProps: ProductSkuListProps, prevState: ProductSkuListState) {
-    if (isEqual(nextProps.value, prevState.productSkuList)) {
+    if (!isEqual(nextProps.skuProps, prevState.skuProps) || !isEqual(nextProps.value, prevState.productSkuList)) {
+      const { value=[], skuProps=[] } = nextProps;
+      const newSkuProps = skuProps.filter((prop) => (prop.propName && prop.propName.length > 0) || (prop.propValues && prop.propValues.length > 0));
+      const { productSkuList=[], skuProps:oldSkuProps=[] } = prevState;
+      let newProductSkuList: ProductSku[] = [];
+      if (productSkuList.length === 0 && oldSkuProps.length === 0) {
+        newProductSkuList = value;
+      } else {
+        newProductSkuList = reduceSku(newSkuProps);
+        newProductSkuList = newProductSkuList.map(sku => {
+          const oldSku = find(productSkuList, (oldSku) => isEqual(oldSku.propValues, sku.propValues)) as ProductSku;
+          if (oldSku) {
+            return {...oldSku};
+          } 
+          return sku;
+        });
+      }
       return {
-        productSkuList: nextProps.value,
-        skuProps: nextProps.skuProps,
+        productSkuList: newProductSkuList,
+        skuProps: newSkuProps,
       };
     }
     return null;
@@ -40,11 +80,13 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
 
   state = {
     productSkuList: [],
-    skuProps: [{key:uniqueId(), propName: "color"}, {key:uniqueId(), propName: "size"}],
+    skuProps: [],
     applyPrice: '', 
     applyStock: '', 
     applySkuCode: ''
   };
+
+ 
 
   handleChangeSkuCode(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     e.preventDefault();
@@ -113,8 +155,8 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
 
   handleApply = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    const { skuProps, applyPrice, applyStock, applySkuCode } = this.state;
-    const newSkuProps = skuProps.map((sku: ProductSku) => ({
+    const { productSkuList, applyPrice, applyStock, applySkuCode } = this.state;
+    const newSkuList = productSkuList.map((sku: ProductSku) => ({
       ...sku,
       price: applyPrice,
       stock: applyStock,
@@ -123,25 +165,26 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
 
     const { onChange } = this.props;
     if (onChange) {
-      onChange(newSkuProps);
+      onChange(newSkuList);
     }
     this.setState({
-      skuProps: newSkuProps
+      productSkuList: newSkuList
     });
   }
 
   render() {
     const { productSkuList=[], skuProps=[], applyPrice, applyStock, applySkuCode } = this.state;
+
     return  (
       skuProps.length > 0  &&
       <div className={styles.productSku}>
         <div className={styles.productSkuApply}>
           <div className={styles.productSkuApplyWrapper}>
             <span className={styles.productSkuApplyPrice}>
-              <CurrencyInput currency="CNY" placeholder="价格" value={applyPrice} onChange={(applyPrice) => this.setState({applyPrice})}/>
+              <CurrencyInput currency="CNY" placeholder="价格" value={applyPrice} onChange={this.handleChangeApplyPrice}/>
             </span>
             <span className={styles.productSkuApplyStock} >
-              <IntegerInput placeholder="库存" value={applyStock} onChange={(applyStock) => this.setState({applyStock})}/>
+              <IntegerInput placeholder="库存" value={applyStock} onChange={this.handleChangeApplyStock}/>
             </span>
             <span className={styles.productSkuApplySku}>
               <Input placeholder="货号"  value={applySkuCode} onChange={this.handleChangeApplySkuCode}/>
@@ -169,7 +212,7 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
             <div className={styles.tableBody}>
               {
                 productSkuList.map((sku: ProductSku, index: number) => (
-                  <div className={classNames(styles.tableRow, styles.isLast)} key={sku.id || sku.key}>
+                  <div className={(index+1) === productSkuList.length && classNames(styles.tableRow, styles.isLast) || styles.tableRow} key={sku.id || sku.key}>
                     {
                       sku.propValues && sku.propValues.map((propValue: ProductSkuPropValue) => (
                         <div className={styles.tableCell} key={propValue.id || propValue.key}>{propValue.value}</div>
@@ -177,7 +220,8 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
                     }
                     <div className={styles.tableCells}>
                       <div className={styles.tableCell}>
-                        <CurrencyInput currency="CNY" placeholder="价格" value={sku.price} onChange={(price) => this.handleChangePrice(price, index)}/>
+                        <CurrencyInput 
+                        currency="CNY" placeholder="价格" value={sku.price} onChange={(price) => this.handleChangePrice(price, index)}/>
                       </div>
                       <div className={styles.tableCell}>
                         <IntegerInput placeholder="库存" value={sku.stock} onChange={(stock) => this.handleChangeStock(stock, index)}/>
