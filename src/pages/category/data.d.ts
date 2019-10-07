@@ -3,7 +3,6 @@ import { UploadFile } from 'antd/lib/upload/interface';
 export interface Category {
   id: number | string;
   cateName: string;
-  imageFiles?: UploadFile[];
   icon?: string;
   i18n?: string;
   level: number;

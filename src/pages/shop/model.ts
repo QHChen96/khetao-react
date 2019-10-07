@@ -1,44 +1,41 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { CustomCategoryListData } from './data';
+import { CustomCategory } from './data';
 import { queryCategory, saveCategory, delCategory } from './service';
 import { findIndex } from 'lodash';
 
 
-export interface StateType {
-  customCategoryData: CustomCategoryListData
+export interface CustomCategoryModel {
+  list: CustomCategory[]
 }
 
 export type Effect = (
   action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
+  effects: EffectsCommandMap & { select: <T>(func: (state: CustomCategoryModel) => T) => T },
 ) => void;
 
 
 export interface ModelType {
   namespace: string;
 
-  state: StateType;
+  state: CustomCategoryModel;
   effects: {
     fetch: Effect;
     save: Effect;
     delete: Effect;
   };
   reducers: {
-    list: Reducer<StateType>;
-    insert: Reducer<StateType>;
-    update: Reducer<StateType>;
-    remove: Reducer<StateType>;
+    list: Reducer<CustomCategoryModel>;
+    insert: Reducer<CustomCategoryModel>;
+    update: Reducer<CustomCategoryModel>;
+    remove: Reducer<CustomCategoryModel>;
   };
 }
 
 const Model: ModelType = {
-  namespace: 'customCategory',
+  namespace: 'customCategorySettings',
   state: {
-    customCategoryData: {
-      list: [],
-    }
-   
+    list: [],
   },
   effects: {
     *fetch({ payload }, { call, put }) {
@@ -48,7 +45,7 @@ const Model: ModelType = {
         payload: response.data,
       });
     },
-    *save({ payload }, { call, put } ) {
+    *save({ payload, callback }, { call, put } ) {
       const response = yield call(saveCategory, payload);
       if (payload.id) {
         yield put({
@@ -61,6 +58,7 @@ const Model: ModelType = {
           payload: response.data,
         });
       }
+      callback();
     },
     *delete({ payload }, { call, put }) {
       const response = yield call(delCategory, payload);
@@ -73,66 +71,47 @@ const Model: ModelType = {
     }
   },
   reducers: {
-    list(state={
-      customCategoryData: {
-        list: []
-      }
-    }, action) {
+    list(state={ list: []}, action) {
       console.log(action)
       return {
         ...state,
-        customCategoryData: {
-          ...state.customCategoryData,
-          list: [...action.payload]
-        }
+        list: [...action.payload]
       };
     },
     insert(state={
-      customCategoryData: {
-        list: []
-      }
+      list: []
     }, action) {
-      const { customCategoryData:{list} } = state;
+      const { list } = state;
       return {
         ...state,
-        customCategoryData: {
-          list: [...list, action.payload]
-        }  
+        list: [...list, action.payload]
       }
     },
     update(state={
-      customCategoryData: {
-        list: []
-      }
+      list: []
     }, action) {
-      const { customCategoryData:{list} } = state;
+      const { list } = state;
       if (list) {
         const index = findIndex(list, ele => ele.id === action.payload.id);
         if (index > -1) {
           list.splice(index, 1, action.payload)
           return {
             ...state,
-            customCategoryData: {
-              list: [...list]
-            }
+            list: [...list]
           }
         }
       }
-      return state as StateType;
+      return state;
     },
     remove(state={
-      customCategoryData: {
-        list: []
-      }
+      list: []
     }, action) {
-      const { customCategoryData:{list} } = state;
+      const { list } = state;
       if (list) {
         const newList = list.filter(e => e.id !== action.payload);
         return {
           ...state,
-          customCategoryData: {
-            list: [...newList]
-          }
+          list: [...newList]
         }
       }
       return state;

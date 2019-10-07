@@ -2,16 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { Dispatch } from 'redux';
 
 import { connect } from 'dva';
-import { Button, Table, Avatar, Popconfirm, Icon, Modal } from 'antd';
+import { Button, Table, Avatar, Popconfirm, Icon, Modal, message } from 'antd';
 
 import arrayToTree from 'array-to-tree';
 import { sortBy, find } from 'lodash';
 import CustomCategoryForm, { BasicCustomCategoryForm } from './customCategoryForm';
-import { StateType } from '../../../model';
 import { CustomCategory } from '../../../data';
 import { CurrentShop } from '@/models/shop';
 import { ShopModelState } from '@/models/shop';
-import { getUploadFiles } from '../../../../../utils/utils';
 import { getImg } from '@/utils/utils';
 
 interface CustomCategoryState {
@@ -23,15 +21,17 @@ interface CustomCategoryState {
 interface CustomCategoryProps {
   // loading: boolean;
   dispatch?: Dispatch<any>;
-  customCategory?: StateType;
+  customCategoryList?: CustomCategory[];
   currentShop?: CurrentShop;
 }
 
 class CateTable extends Table<CustomCategory> {}
 class CateColumn extends Table.Column<CustomCategory> {}
 
-@connect(({ customCategory, shop }: { customCategory: StateType; shop: ShopModelState }) => ({
-  customCategory,
+@connect(({ customCategorySettings, shop }: { customCategorySettings: {
+  list: CustomCategory[]
+}; shop: ShopModelState }) => ({
+  customCategoryList: customCategorySettings.list,
   currentShop: shop.currentShop,
 }))
 class CustomCategoryList extends Component<CustomCategoryProps, CustomCategoryState> {
@@ -53,7 +53,7 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
-        type: 'customCategory/fetch',
+        type: 'customCategorySettings/fetch',
       });
     }
   }
@@ -62,9 +62,9 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
     e.preventDefault();
     const { id: shopId } = this.props.currentShop as CurrentShop;
     const {
-      customCategoryData: { list },
-    } = this.props.customCategory as StateType;
-    const parentCates = list.filter(cate => cate.level < this.maxLevel);
+      customCategoryList=[]
+    } = this.props;
+    const parentCates = customCategoryList.filter(cate => cate.level < this.maxLevel);
     this.setState({
       currentCate: { parentId, shopId },
       modalVisible: true,
@@ -77,7 +77,7 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
-        type: 'customCategory/delete',
+        type: 'customCategorySettings/delete',
         payload: record.id,
       });
     }
@@ -86,11 +86,11 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
   handleEditCate = (e: React.MouseEvent<HTMLElement>, record: CustomCategory) => {
     e.preventDefault();
     const {
-      customCategoryData: { list },
-    } = this.props.customCategory as StateType;
-    const parentCates = list.filter(cate => cate.level < this.maxLevel);
-    let currentCate = find(list, cate => cate.id == record.id) as CustomCategory;
-    currentCate = { ...currentCate, imageFiles: getUploadFiles(currentCate.icon) };
+      customCategoryList=[],
+    } = this.props;
+    const parentCates = customCategoryList.filter(cate => cate.level < this.maxLevel);
+    let currentCate = find(customCategoryList, cate => cate.id == record.id) as CustomCategory;
+    currentCate = { ...currentCate };
     this.setState({
       currentCate: currentCate,
       modalVisible: true,
@@ -102,8 +102,11 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
-        type: 'customCategory/save',
+        type: 'customCategorySettings/save',
         payload: cate,
+        callback: () => {
+          message.success('操作成功!');
+        },
       });
       this.setState({
         modalVisible: false,
@@ -121,11 +124,11 @@ class CustomCategoryList extends Component<CustomCategoryProps, CustomCategorySt
   render() {
     const { currentCate = {}, parentCates = [], modalVisible } = this.state;
     const {
-      customCategoryData: { list },
-    } = this.props.customCategory as StateType;
+      customCategoryList,
+    } = this.props;
     const datasource: CustomCategory[] = [];
-    if (list) {
-      const flist: CustomCategory[] = list.filter(e => e.parentId >= 0);
+    if (customCategoryList) {
+      const flist: CustomCategory[] = customCategoryList.filter(e => e.parentId >= 0);
       datasource.push(
         ...arrayToTree(sortBy(flist, ele => -ele.priority), {
           parentProperty: 'parentId',

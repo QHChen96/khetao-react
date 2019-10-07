@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { ProductSkuProp, ProductSkuPropValue } from '../../../data';
 import styles from './style.less';
 import { Button, Icon, Input, Tooltip } from 'antd';
-import { isEqual, uniqueId, findIndex, find } from 'lodash';
+import { isEqual, uniqueId, find } from 'lodash';
 import classNames from 'classnames';
 
 export interface ProductSkuPropInputProps {

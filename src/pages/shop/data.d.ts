@@ -13,7 +13,6 @@ export interface Shop {
 export interface CustomCategory {
   id: number | string;
   cateName: string;
-  imageFiles?: UploadFile[];
   icon?: string;
   i18n?: string;
   level: number;

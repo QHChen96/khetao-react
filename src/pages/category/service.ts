@@ -33,6 +33,6 @@ export async function uploadCateImg(file: RcFile) {
   });
 }
 
-export async function queryCategory(params: CategoryListParams) {
+export async function queryCategory(params?: CategoryListParams) {
   return request('/server/category/list');
 }

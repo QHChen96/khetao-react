@@ -27,6 +27,7 @@ export interface ConnectState {
   settings: SettingModelState;
   user: UserModelState;
   shop: ShopModelState;
+  category: 
 }
 
 export type Effect = (

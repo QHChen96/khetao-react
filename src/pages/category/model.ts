@@ -1,41 +1,39 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { CategoryListData } from './data';
+import { Category } from './data';
 import { queryCategory, saveCategory, delCategory } from './service';
 import { findIndex } from 'lodash';
 
-export interface StateType {
-  data: CategoryListData;
+export interface CategoryModelState {
+  list?: Category[];
 }
 
 export type Effect = (
   action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
+  effects: EffectsCommandMap & { select: <T>(func: (state: CategoryModelState) => T) => T },
 ) => void;
 
 export interface ModelType {
   namespace: string;
 
-  state: StateType;
+  state: CategoryModelState;
   effects: {
     fetch: Effect;
     save: Effect;
     delete: Effect;
   };
   reducers: {
-    list: Reducer<StateType>;
-    insert: Reducer<StateType>;
-    update: Reducer<StateType>;
-    remove: Reducer<StateType>;
+    list: Reducer<CategoryModelState>;
+    insert: Reducer<CategoryModelState>;
+    update: Reducer<CategoryModelState>;
+    remove: Reducer<CategoryModelState>;
   };
 }
 
 const Model: ModelType = {
-  namespace: 'categoryList',
+  namespace: 'categorySettings',
   state: {
-    data: {
-      list: [],
-    },
+    list: [],
   },
   effects: {
     *fetch({ payload }, { call, put }) {
@@ -72,66 +70,54 @@ const Model: ModelType = {
   reducers: {
     list(
       state = {
-        data: {
-          list: [],
-        },
+        list: [],
       },
       action,
     ) {
       return {
         ...state,
-        data: {
-          list: [...action.payload],
-        },
+        list: [...action.payload],
       };
     },
-    insert(state, action) {
+    insert(state={list:[]}, action) {
       const {
-        data: { list },
-      } = state as StateType;
+        list=[],
+      } = state;
       return {
         ...state,
-        data: {
-          list: [...list, action.payload],
-        },
+        list: [...list, action.payload],
       };
     },
-    update(state, action) {
+    update(state={list:[]}, action) {
       const {
-        data: { list },
-      } = state as StateType;
+        list
+      } = state;
       if (list) {
-        const index = findIndex(list, ele => ele.id === action.payload.id);
+        const index = findIndex(list, (ele:any) => ele.id === action.payload.id);
         if (index > -1) {
           list.splice(index, 1, action.payload);
           return {
             ...state,
-            data: {
-              list: [...list],
-            },
+            list: [...list],
           };
         }
       }
-      return state as StateType;
+      return state;
     },
     remove(
       state = {
-        data: {
-          list: [],
-        },
+        list: [],
       },
       action,
     ) {
       const {
-        data: { list },
+        list
       } = state;
       if (list) {
         const newList = list.filter(e => e.id !== action.payload);
         return {
           ...state,
-          data: {
-            list: [...newList],
-          },
+          list: [...newList],
         };
       }
       return state;

@@ -3,15 +3,12 @@ import React, { Component } from 'react';
 
 import { GridContent } from '@ant-design/pro-layout';
 import { connect } from 'dva';
-
-import { Category } from './data.d';
 import arrayToTree from 'array-to-tree';
 import CategoryForm from './category-form';
-import { StateType } from './model';
-
 import { sortBy, find, filter } from 'lodash';
-import { getImg, getUploadFiles } from '@/utils/utils';
+import { getImg } from '@/utils/utils';
 import { Dispatch } from '@/models/connect';
+import { Category } from './data';
 
 class CateTable extends Table<Category> {}
 class CateColumn extends Table.Column<Category> {}
@@ -25,21 +22,24 @@ interface CategoryState {
 interface CategoryProps {
   loading: boolean;
   dispatch: Dispatch;
-  categoryList: StateType;
+  categoryList: Category[];
 }
 @connect(
   ({
-    categoryList,
+    categorySettings,
     loading,
   }: {
-    categoryList: StateType;
-    loading: {
-      models: { [key: string]: any };
+    categorySettings: {
+      list: Category[];
     };
-  }) => ({
-    categoryList,
-    loading: loading.models.category,
-  }),
+    loading: any;
+  }) => {
+    const { list } = categorySettings;
+    return {
+      categoryList: list,
+      loading: loading.models.categorySettings,
+    };
+  },
 )
 class CategoryList extends Component<CategoryProps, CategoryState> {
   maxLevel = 3;
@@ -51,18 +51,21 @@ class CategoryList extends Component<CategoryProps, CategoryState> {
 
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'categoryList/fetch',
-    });
+    if (dispatch) {
+      dispatch({
+        type: "categorySettings/fetch"
+      })
+    }
   }
 
   createNewCate = (e: React.MouseEvent<HTMLElement>, parentId: number | string) => {
     e.preventDefault();
 
     const {
-      data: { list },
-    } = this.props.categoryList;
-    const parentList = filter(list, ele => ele.level < this.maxLevel);
+      categoryList,
+    } = this.props;
+    const parentList = filter(categoryList, ele => ele.level < this.maxLevel);
+    console.log(parentList);
     this.setState({
       currentCate: { parentId: parentId },
       parentList: parentList,
@@ -82,7 +85,7 @@ class CategoryList extends Component<CategoryProps, CategoryState> {
     }
     const { dispatch } = this.props;
     dispatch({
-      type: 'categoryList/delete',
+      type: 'categorySettings/delete',
       payload: id,
     });
   };
@@ -94,17 +97,17 @@ class CategoryList extends Component<CategoryProps, CategoryState> {
       return;
     }
     const {
-      data: { list },
-    } = this.props.categoryList;
-    if (!list || list.length === 0) {
+      categoryList,
+    } = this.props;
+    if (!categoryList || categoryList.length === 0) {
       return;
     }
-    let cate = find(list, ele => ele.id === id) as Category;
+    let cate = find(categoryList, ele => ele.id === id) as Category;
     if (!cate) {
       return;
     }
-    cate = { ...cate, imageFiles: getUploadFiles(cate.icon) };
-    const parentList = filter(list, ele => ele.level < this.maxLevel && ele.id != cate.id);
+    cate = { ...cate };
+    const parentList = filter(categoryList, ele => ele.level < this.maxLevel && ele.id != cate.id);
     this.setState({
       currentCate: cate,
       parentList: parentList,
@@ -114,7 +117,7 @@ class CategoryList extends Component<CategoryProps, CategoryState> {
   handleUpdateCate = (category: Partial<Category>) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'categoryList/save',
+      type: 'categorySettings/save',
       payload: category,
       callback: () => {
         message.success('操作成功!');
@@ -124,13 +127,13 @@ class CategoryList extends Component<CategoryProps, CategoryState> {
 
   render() {
     const {
-      categoryList: { data },
+      categoryList=[],
       loading,
     } = this.props;
     const { currentCate = {}, parentList = [] } = this.state;
     let datasource: Category[] = [];
-    if (data && data.list) {
-      const flist: Category[] = data.list.filter(e => e.parentId >= 0);
+    if (categoryList && categoryList.length > 0) {
+      const flist: Category[] = categoryList.filter(e => e.parentId >= 0);
       datasource = arrayToTree(sortBy(flist, ele => -ele.priority), {
         parentProperty: 'parentId',
         customID: 'id',
