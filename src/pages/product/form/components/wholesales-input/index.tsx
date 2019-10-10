@@ -176,7 +176,7 @@ class ProductWholesalesInput extends Component<ProductSkuPropInputProps, Product
                             currency={'CNY'}
                             placeholder="价格"
                             value={wholesale.price as string}
-                            onChange={price => this.hanleChangePrice(price, index)}
+                            onChange={price => this.hanleChangePrice(price as string, index)}
                           />
                         </div>
                       </div>

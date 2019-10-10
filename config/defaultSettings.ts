@@ -41,6 +41,7 @@ export interface DefaultSettings {
   iconfontUrl: string;
   colorWeak: boolean;
   imgServerUrl: string;
+  currency: string;
 }
 
 export default {
@@ -59,4 +60,6 @@ export default {
   pwa: false,
   iconfontUrl: '',
   imgServerUrl: 'http://img.khetao.com/',
+  currency: "USD"
+
 } as DefaultSettings;

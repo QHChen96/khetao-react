@@ -1,16 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { Dispatch } from 'redux';
 
-import { connect } from 'dva';
+
 import { Button, Table, Avatar, Popconfirm, Icon, Modal, message } from 'antd';
 
 import arrayToTree from 'array-to-tree';
 import { sortBy, find } from 'lodash';
-import CustomCategoryForm, { BasicCustomCategoryForm } from './customCategoryForm';
-import { CustomCategory } from '../../../data';
+import CustomCategoryForm, { BasicCustomCategoryForm } from './components/custom-category-form';
+
 import { CurrentShop } from '@/models/shop';
 import { ShopModelState } from '@/models/shop';
 import { getImg } from '@/utils/utils';
+import { connect } from 'dva';
+import { CustomCategory } from '@/models/custom-category';
+import { Dispatch } from '@/models/connect';
 
 interface CustomCategoryState {
   modalVisible: boolean;
@@ -20,7 +22,7 @@ interface CustomCategoryState {
 
 interface CustomCategoryProps {
   // loading: boolean;
-  dispatch?: Dispatch<any>;
+  dispatch?: Dispatch;
   customCategoryList?: CustomCategory[];
   currentShop?: CurrentShop;
 }

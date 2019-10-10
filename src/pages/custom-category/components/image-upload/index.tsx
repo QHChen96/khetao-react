@@ -5,7 +5,8 @@ import styles from './style.less';
 import { UploadFile, RcFile } from 'antd/lib/upload/interface';
 import { isEqual, uniqueId } from 'lodash';
 import { getImg } from '@/utils/utils';
-import { uploadCateImg } from '@/pages/shop/service';
+import { uploadCateImg } from '@/services/custom-category';
+
 
 export interface CategoryImageUploadProps {
   value?: string;

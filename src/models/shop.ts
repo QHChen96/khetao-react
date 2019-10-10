@@ -3,7 +3,7 @@ import { Reducer } from "redux";
 
 
 import { find } from "lodash";
-import { query, queryCurrent, saveBasic, saveWebInfo } from '@/services/shop';
+import { query, queryCurrent, saveBasic, saveWebInfo, uploadLogo } from '@/services/shop';
 
 export interface CurrentShop {
   id?: string|number;
@@ -34,12 +34,13 @@ export interface ShopModelType {
     switchShop: Effect;
     saveBasic: Effect;
     saveWebInfo: Effect;
+    uploadLogo: Effect;
   };
   reducers: {
     saveCurrent: Reducer<ShopModelState>;
     save: Reducer<ShopModelState>;
     changeCurrentShop: Reducer<ShopModelState>;
-    
+    updateLogo: Reducer<ShopModelState>;
   };
 }
 
@@ -48,6 +49,7 @@ const ShopModel: ShopModelType = {
 
   state: {
     currentShop: {},
+    shopList: []
   },
 
   effects: {
@@ -89,6 +91,13 @@ const ShopModel: ShopModelType = {
         type: 'saveCurrent',
         payload: payload,
       });
+    },
+    *uploadLogo({ payload }, { call, put }) {
+      const response = yield call(uploadLogo, payload.shopId, payload.file);
+      yield put({
+        type: 'updateLogo',
+        payload: response.data,
+      });
     }
   },
 
@@ -118,6 +127,16 @@ const ShopModel: ShopModelType = {
         currentShop: currentShop || {},
       };
     },
+    updateLogo(state = {
+      currentShop: {}
+    }, action) {
+      const { currentShop } = state;
+      const newCurrentShop = { ...currentShop, avatar: action.payload }
+      return {
+        ...state,
+        currentShop: newCurrentShop
+      }
+    }
   },
 };
 

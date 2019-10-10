@@ -36,3 +36,15 @@ export async function switchCurrent(id: number): Promise<any> {
     data: id
   };
 }
+
+
+export async function uploadLogo(shopId: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("shopId", shopId);
+  return request('/server/shop/update/logo', {
+    method: 'POST',
+    data: formData,
+    requestType: 'form'
+  });
+}

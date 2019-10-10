@@ -6,9 +6,11 @@ import { GlobalModelState } from './global';
 import { DefaultSettings as SettingModelState } from '../../config/defaultSettings';
 import { UserModelState } from './user';
 import { ShopModelState } from './shop';
+import { CategoryModelState } from './category';
+import { CustomCategoryState } from './custom-category';
 
 
-export { GlobalModelState, SettingModelState, UserModelState, ShopModelState };
+export { GlobalModelState, SettingModelState, UserModelState, ShopModelState, CategoryModelState, CustomCategoryState };
 
 export interface Loading {
   global: boolean;
@@ -27,7 +29,8 @@ export interface ConnectState {
   settings: SettingModelState;
   user: UserModelState;
   shop: ShopModelState;
-  category: 
+  category: CategoryModelState;
+  customCategory: CustomCategoryState;
 }
 
 export type Effect = (

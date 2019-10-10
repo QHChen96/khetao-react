@@ -1,27 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Form, Select, InputNumber, Input, Upload, message, Icon, Modal } from 'antd';
-import { FormComponentProps } from 'antd/es/form';
-import { CustomCategory } from '@/pages/shop/data';
-import { UploadChangeParam } from 'antd/lib/upload';
-import { UploadFile, RcFile } from 'antd/lib/upload/interface';
-import { uploadCateImg } from '@/pages/shop/service';
-import { getBase64, getImg } from '@/utils/utils';
-import CategoryImageUpload from '../image-upload';
+import { Form, Select, InputNumber, Input, Modal } from 'antd';
+import { FormComponentProps } from 'antd/lib/form';
 
-interface UploadFileResp {
-  data: object;
-  file: RcFile | UploadFile;
-  headers: object;
-  filename: string;
-  onSuccess: (response: any, file: UploadFile) => void;
-  onProgress: (
-    e: {
-      percent: number;
-    },
-    file: UploadFile,
-  ) => void;
-  onError: (error: Error, response: any, file: UploadFile) => void;
-}
+import CategoryImageUpload from '../image-upload';
+import { CustomCategory } from '@/models/custom-category';
 
 export interface CustomCategoryFormProps extends FormComponentProps {
   currentCate: Partial<CustomCategory>;
@@ -56,11 +38,18 @@ export class BasicCustomCategoryForm extends Component<
     );
   };
 
-  handleReset = (event: React.MouseEvent) => {
+  handleReset = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.form.resetFields();
   };
 
+  handleCancel = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    this.setState({
+      previewVisible: false,
+      previewImage: '',
+    });
+  }
 
   handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -113,6 +102,7 @@ export class BasicCustomCategoryForm extends Component<
             })(
               <CategoryImageUpload/>
             )}
+            
             <Modal visible={this.state.previewVisible} footer={null} onCancel={this.handleCancel}>
               <img alt="图片" style={{ width: '100%' }} src={this.state.previewImage} />
             </Modal>

@@ -1,38 +1,52 @@
-import { AnyAction, Reducer } from 'redux';
-import { EffectsCommandMap } from 'dva';
-import { CustomCategory } from './data';
-import { queryCategory, saveCategory, delCategory } from './service';
+import { Effect } from './connect.d';
+import { Reducer } from 'redux';
+import { queryCategory, saveCategory, delCategory } from '@/services/custom-category';
 import { findIndex } from 'lodash';
 
+export interface CustomCategory {
+  id: number | string;
+  cateName: string;
+  icon?: string;
+  i18n?: string;
+  level: number;
+  parentId: number | string;
+  parentIds?: string;
+  priority: number;
+  children?: CustomCategory[];
+  parents?: CustomCategory[];
+  shopId?: number | string;
+}
 
-export interface CustomCategoryModel {
+export interface CustomCategoryListData {
+  list: CustomCategory[];
+}
+
+export interface CustomCategoryListParams {}
+
+
+export interface CustomCategoryState {
   list: CustomCategory[]
 }
 
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: CustomCategoryModel) => T) => T },
-) => void;
 
-
-export interface ModelType {
+export interface CustomCategoryModelType {
   namespace: string;
 
-  state: CustomCategoryModel;
+  state: CustomCategoryState;
   effects: {
     fetch: Effect;
     save: Effect;
     delete: Effect;
   };
   reducers: {
-    list: Reducer<CustomCategoryModel>;
-    insert: Reducer<CustomCategoryModel>;
-    update: Reducer<CustomCategoryModel>;
-    remove: Reducer<CustomCategoryModel>;
+    list: Reducer<CustomCategoryState>;
+    insert: Reducer<CustomCategoryState>;
+    update: Reducer<CustomCategoryState>;
+    remove: Reducer<CustomCategoryState>;
   };
 }
 
-const Model: ModelType = {
+const CustomCategoryModel: CustomCategoryModelType = {
   namespace: 'customCategorySettings',
   state: {
     list: [],
@@ -67,12 +81,10 @@ const Model: ModelType = {
         type: 'remove',
         payload: response.data,
       });
-      
     }
   },
   reducers: {
     list(state={ list: []}, action) {
-      console.log(action)
       return {
         ...state,
         list: [...action.payload]
@@ -119,4 +131,4 @@ const Model: ModelType = {
   },
 }
 
-export default Model;
+export default CustomCategoryModel;

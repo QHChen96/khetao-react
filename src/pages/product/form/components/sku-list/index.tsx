@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ProductSku, ProductSkuProp, ProductSkuPropValue } from '../../../data';
-import { isEqual, uniqueId, reduce, each, find } from 'lodash';
+import { isEqual, reduce, each, find } from 'lodash';
 
 import styles from './style.less';
 import CurrencyInput from '@/components/currency-input';
@@ -36,6 +36,7 @@ const reduceSku = (skuProps: ProductSkuProp[], isNew: boolean = true) => {
 export interface ProductSkuListProps {
   value?: ProductSku[];
   skuProps?: ProductSkuProp[];
+  currency?: string;
   onChange?: (value: ProductSku[]) => void;
 }
 
@@ -158,9 +159,9 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
     const { productSkuList, applyPrice, applyStock, applySkuCode } = this.state;
     const newSkuList = productSkuList.map((sku: ProductSku) => ({
       ...sku,
-      price: applyPrice,
-      stock: applyStock,
-      skuCode: applySkuCode
+      price: applyPrice ? applyPrice: sku.price,
+      stock: applyStock ? applyStock: sku.stock,
+      skuCode: applySkuCode ? applySkuCode : sku.skuCode
     }));
 
     const { onChange } = this.props;
@@ -174,14 +175,14 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
 
   render() {
     const { productSkuList=[], skuProps=[], applyPrice, applyStock, applySkuCode } = this.state;
-
+    const { currency } = this.props;
     return  (
-      skuProps.length > 0  &&
+      skuProps.length > 0 &&
       <div className={styles.productSku}>
         <div className={styles.productSkuApply}>
           <div className={styles.productSkuApplyWrapper}>
             <span className={styles.productSkuApplyPrice}>
-              <CurrencyInput currency="CNY" placeholder="价格" value={applyPrice} onChange={this.handleChangeApplyPrice}/>
+              <CurrencyInput currency={currency} placeholder="价格" value={applyPrice} onChange={this.handleChangeApplyPrice}/>
             </span>
             <span className={styles.productSkuApplyStock} >
               <IntegerInput placeholder="库存" value={applyStock} onChange={this.handleChangeApplyStock}/>
@@ -200,7 +201,7 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
             <div className={styles.tableHeader}>
               {
                 skuProps.map((skuProp: ProductSkuProp) => (
-                  <div className={styles.tableCell} key={skuProp.id || skuProp.key}>{skuProp.propName}</div>
+                  <div className={styles.tableCell} key={skuProp.id || skuProp.key}>{skuProp.propName ? skuProp.propName : "属性名"}</div>
                 ))
               }
               <div className={styles.tableCells}>
@@ -215,13 +216,12 @@ class ProductSkuList extends Component<ProductSkuListProps, ProductSkuListState>
                   <div className={(index+1) === productSkuList.length && classNames(styles.tableRow, styles.isLast) || styles.tableRow} key={sku.id || sku.key}>
                     {
                       sku.propValues && sku.propValues.map((propValue: ProductSkuPropValue) => (
-                        <div className={styles.tableCell} key={propValue.id || propValue.key}>{propValue.value}</div>
+                        <div className={styles.tableCell} key={propValue.id || propValue.key}>{propValue.value ? propValue.value : "属性值"}</div>
                       ))
                     }
                     <div className={styles.tableCells}>
                       <div className={styles.tableCell}>
-                        <CurrencyInput 
-                        currency="CNY" placeholder="价格" value={sku.price} onChange={(price) => this.handleChangePrice(price, index)}/>
+                        <CurrencyInput currency={currency} placeholder="价格" value={sku.price} onChange={(price) => this.handleChangePrice(price, index)}/>
                       </div>
                       <div className={styles.tableCell}>
                         <IntegerInput placeholder="库存" value={sku.stock} onChange={(stock) => this.handleChangeStock(stock, index)}/>

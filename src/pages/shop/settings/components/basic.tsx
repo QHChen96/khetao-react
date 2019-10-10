@@ -9,8 +9,10 @@ import { ConnectState } from "@/models/connect";
 import { connect } from "dva";
 import ServiceTimeView from "./ServiceTimeView";
 import { Dispatch } from "redux";
+import { RcFile } from 'antd/lib/upload/interface';
+import { getImg } from '@/utils/utils';
 
-const LogoView = ({ logo }: { logo: string }) => (
+const LogoView = ({ logo, customRequest, }: { logo: string; customRequest: (object: any) => void; }) => (
   <Fragment>
     <div className={styles.logo_title}>
       LOGO
@@ -18,7 +20,7 @@ const LogoView = ({ logo }: { logo: string }) => (
     <div className={styles.logo}>
       <img src={logo} alt="logo" />
     </div>
-    <Upload fileList={[]}>
+    <Upload customRequest={customRequest} accept="image/png,image/jpg" fileList={[]}>
       <div className={styles.button_view}>
         <Button icon="upload">
           更换LOGO
@@ -74,17 +76,11 @@ interface BasicViewProps extends FormComponentProps {
 class BasicView extends Component<BasicViewProps> {
   view: HTMLDivElement | undefined = undefined;
 
-  componentDidMount() {
-
-  }
-
-
-
   getLogoUrl = () => {
     const { currentShop } = this.props;
     if (currentShop) {
       if (currentShop.avatar) {
-        return currentShop.avatar;
+        return getImg(currentShop.avatar);
       }
       const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
       return url;      
@@ -95,6 +91,20 @@ class BasicView extends Component<BasicViewProps> {
   getViewDom = (ref: HTMLDivElement) => {
     this.view = ref;
   }
+
+  customRequest = (object: any) => {
+    const file  = object.file as RcFile;
+    const { dispatch, currentShop } = this.props;
+    if (dispatch) {
+      dispatch({
+        type: 'shop/uploadLogo',
+        payload: {
+          file: file,
+          shopId: (currentShop as CurrentShop).id
+        },
+      });
+    }
+  };
 
   handlerSubmit = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -189,7 +199,7 @@ class BasicView extends Component<BasicViewProps> {
           </Form>
         </div>
         <div className={styles.right}>
-          <LogoView logo={this.getLogoUrl()} />
+          <LogoView logo={this.getLogoUrl()} customRequest={this.customRequest}/>
         </div>
       </div>
     );

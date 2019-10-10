@@ -3,7 +3,7 @@ import { Input } from 'antd';
 
 export interface CurrencyInputProps {
   value?: string | number;
-  currency: string;
+  currency?: string;
   className?: any;
   placeholder?: string;
   onChange?: (value: string|number) => void;

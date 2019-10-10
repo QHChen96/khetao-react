@@ -7,6 +7,7 @@ import { ConnectProps, ConnectState } from '@/models/connect';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 import { CurrentShop } from '@/models/shop';
+import { getImg } from '@/utils/utils';
 
 
 
@@ -47,7 +48,7 @@ class ShopSwitchDropdown extends React.Component<GlobalHeaderRightProps> {
     if (shopList.length === 1) {
       return (
         <span className={`${styles.action} ${styles.account}`}>
-          <Avatar size="small" className={styles.avatar} src={currentShop.avatar} alt="avatar" />
+          <Avatar size="small" className={styles.avatar} src={getImg(currentShop.avatar)} alt="avatar" />
           <span className={styles.name}>{currentShop.shopName}</span>
         </span>
       );
@@ -59,7 +60,7 @@ class ShopSwitchDropdown extends React.Component<GlobalHeaderRightProps> {
           filtedList.map(shop => (
             <Menu.Item key={shop.id}>
               <span className={`${styles.action} ${styles.account}`}>
-                <Avatar size="small" className={styles.avatar} src={shop.avatar} alt="avatar" />
+                <Avatar size="small" className={styles.avatar} src={getImg(shop.avatar)} alt="avatar" />
                 <span className={styles.name}>{shop.shopName}</span>
               </span>
             </Menu.Item>
@@ -70,7 +71,7 @@ class ShopSwitchDropdown extends React.Component<GlobalHeaderRightProps> {
     return currentShop && currentShop.shopName ? (
       <HeaderDropdown overlay={menuHeaderDropdown}>
         <span className={`${styles.action} ${styles.account}`}>
-          <Avatar size="small" className={styles.avatar} src={currentShop.avatar} alt="avatar" />
+          <Avatar size="small" className={styles.avatar} src={getImg(currentShop.avatar)} alt="avatar" />
           <span className={styles.name}>{currentShop.shopName}</span>
         </span>
       </HeaderDropdown>

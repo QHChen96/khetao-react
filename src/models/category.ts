@@ -1,19 +1,30 @@
-import { AnyAction, Reducer } from 'redux';
-import { EffectsCommandMap } from 'dva';
-import { Category } from './data';
-import { queryCategory, saveCategory, delCategory } from './service';
+import { Effect } from './connect.d';
+import { Reducer } from 'redux';
+import { queryCategory, saveCategory, delCategory } from '@/services/custom-category';
 import { findIndex } from 'lodash';
 
-export interface CategoryModelState {
-  list?: Category[];
+
+export interface Category {
+  id: number | string;
+  cateName: string;
+  icon?: string;
+  i18n?: string;
+  level: number;
+  parentId: number | string;
+  parentIds?: string;
+  priority: number;
+  children?: Category[];
+  parents?: Category[];
 }
 
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: CategoryModelState) => T) => T },
-) => void;
+export interface CategoryListParams {}
 
-export interface ModelType {
+export interface CategoryModelState {
+  list: Category[];
+}
+
+
+export interface CategoryModelType {
   namespace: string;
 
   state: CategoryModelState;
@@ -30,7 +41,7 @@ export interface ModelType {
   };
 }
 
-const Model: ModelType = {
+const CategoryModel: CategoryModelType = {
   namespace: 'categorySettings',
   state: {
     list: [],
@@ -125,4 +136,4 @@ const Model: ModelType = {
   },
 };
 
-export default Model;
+export default CategoryModel;

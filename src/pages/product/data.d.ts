@@ -84,7 +84,6 @@ export interface ProductSpu {
   keyword: string | undefined;
   description: string | undefined;
   wholesales: ProductWholesale[] | undefined;
-  useWholesale: boolean; // 是否批发
 }
 
 export interface ProductSkuProp {

@@ -4,11 +4,11 @@ import React, { Component } from 'react';
 import { GridContent } from '@ant-design/pro-layout';
 import { connect } from 'dva';
 import arrayToTree from 'array-to-tree';
-import CategoryForm from './category-form';
+import CategoryForm from './components/category-form';
 import { sortBy, find, filter } from 'lodash';
 import { getImg } from '@/utils/utils';
 import { Dispatch } from '@/models/connect';
-import { Category } from './data';
+import { Category } from '@/models/category';
 
 class CateTable extends Table<Category> {}
 class CateColumn extends Table.Column<Category> {}
@@ -34,6 +34,7 @@ interface CategoryProps {
     };
     loading: any;
   }) => {
+ 
     const { list } = categorySettings;
     return {
       categoryList: list,

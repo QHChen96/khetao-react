@@ -1,6 +1,6 @@
 import request from '@/utils/request';
-import { CategoryListParams, Category } from './data';
-import { UploadFile, RcFile } from 'antd/lib/upload/interface';
+import { CategoryListParams, Category } from '@/models/category';
+import { RcFile } from 'antd/lib/upload/interface';
 
 export async function refreshCategory() {
   return request('/');

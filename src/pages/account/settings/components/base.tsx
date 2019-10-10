@@ -11,7 +11,8 @@ import styles from './BaseView.less';
 import { Dispatch } from 'redux';
 import { ConnectState } from '@/models/connect';
 import { getImg } from '@/utils/utils';
-import { UploadFileResp } from '@/typings';
+import { RcFile } from 'antd/lib/upload';
+
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -119,8 +120,8 @@ class BaseView extends Component<BaseViewProps> {
     this.view = ref;
   };
 
-  customRequest = (object: object) => {
-    const { file } = object as UploadFileResp;
+  customRequest = (object: any) => {
+    const file = object.file as RcFile;
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({

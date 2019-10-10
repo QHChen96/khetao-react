@@ -3,20 +3,23 @@ import React, { Component, Fragment } from 'react';
 import { Row, Col, Form, Card, Button, Input } from 'antd';
 
 import styles from './style.less';
-import { FormComponentProps } from 'antd/es/form';
-import { ProductSpu, ProductSku, ProductSkuProp } from '../data';
+import { FormComponentProps } from 'antd/lib/form';
+import { ProductSpu} from '../data';
 
 import ProductSkuPropInput from './components/sku-prop-input';
 import ProductSkuList from './components/sku-list/';
 import DimensionInput from './components/dimension-input';
 import { connect } from 'dva';
-import CurrencyInput from '../../../components/currency-input/index';
+import CurrencyInput from '../../../components/currency-input';
 import IntegerInput from '@/components/integer-input';
 import ProductImagesUpload from '@/pages/product/form/components/images-upload';
 import ProductPropImagesUpload from './components/prop-images-upload';
 import ProductWholesalesInput from './components/wholesales-input';
-import UnitInput from '../../../components/unit-input/index';
-
+import UnitInput from '@/components/unit-input';
+import CategorySelect from '@/components/category-select';
+import CustomCategorySelect from '@/components/custom-category-select';
+import { ConnectState } from '@/models/connect';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Item: FormItem } = Form;
 
@@ -37,28 +40,21 @@ const formItemLayout = {
   },
 };
 
-const images: string[] = [
-  'http://img.khetao.com/avatar/ec5ec0a93577f768/5d86efc57a6c94059a424e4b.jpeg',
-  'http://img.khetao.com/c1/ec5ec0a93577f768/5d87000b7a6cc4bf0ea45582.jpeg',
-];
 
 export interface ProductFormProp extends FormComponentProps {
-  localConfig?: {
-    currency: string;
-  };
+  currency?: string;
 }
 
 interface ProductFormState {
   product: Partial<ProductSpu>;
 }
 
-@connect()
+@connect(({
+  settings
+}: ConnectState) => ({
+  currency: settings.currency
+}))
 class ProductForm extends Component<ProductFormProp, ProductFormState> {
-  static defaultProps = {
-    localConfig: {
-      currency: 'CNY',
-    },
-  };
 
   constructor(props: ProductFormProp) {
     super(props);
@@ -91,44 +87,37 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
   }
 
   render() {
-    const { localConfig = { currency: 'USD' } } = this.props;
+    const { currency } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { product } = this.state;
-
-    const skuProps = [{key: '22323',propName: 'color', propValues: [{key:'333', value: '红'}]}] as ProductSkuProp;
-    const skus = [{id: "110", key: '4223', price: 1, skuName: '红', propValues: [{key:'333', value: '红'}]}] as ProductSku[];
 
     return (
       <GridContent>
         <Row gutter={24}>
           <Col span={20}>
             <Form {...formItemLayout}>
-              {
-                getFieldDecorator('id', {
-                  initialValue: product.id
-                })
-              }
               <Card title={'基本信息'} {...cardProps}>
-                <FormItem label={'产品名'}>
+                <FormItem label={'产品名'} required>
                   {getFieldDecorator('productName', {
-                    // rules: [{ required: true, message: '请输入产品名称' }],
+                    rules: [{ required: true, message: '请输入产品名称' }],
                     initialValue: product.productName,
                   })(<Input />)}
                 </FormItem>
-                <FormItem label={'所属类目'}>
+                <FormItem label={'产品描述'}>
+                  {getFieldDecorator('productDesc', {
+                    initialValue: product.productDesc,
+                  })(<TextArea rows={3} />)}
+                </FormItem>
+                <FormItem label={'所属类目'} required>
                   {getFieldDecorator('categoryPath', {
-                    // rules: [{ required: true, message: '请选择所属类目' }],
+                    rules: [{ required: true, message: '请选择所属类目' }],
                     initialValue: product.categoryPath,
-                  })}
-                  <span>服装饰品 > 男装 > T恤</span>
-                  <Button type={'link'}>编辑</Button>
+                  })(<CategorySelect className={styles.categorySelect} placeholder="请选择所属类目"/>)}
                 </FormItem>
                 <FormItem label={'店铺分类'}>
                   {getFieldDecorator('shopCatePath', {
                     initialValue: product.shopCatePath,
-                  })}
-                  <span>男装 > T恤</span>
-                  <Button type={'link'}>编辑</Button>
+                  })(<CustomCategorySelect className={styles.categorySelect} placeholder="请选择店铺分类" />)}
                 </FormItem>
               </Card>
 
@@ -137,17 +126,19 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
                   <Fragment>
                     <FormItem label={'价格'} required>
                       {getFieldDecorator('price', {
+                        rules: [{ required: true, message: '请输入价格' }],
                         initialValue: product.price,
                       })(
                         <CurrencyInput
                           className={styles.productNumberInput}
                           placeholder="价格"
-                          currency={localConfig.currency}
+                          currency={currency}
                         />,
                       )}
                     </FormItem>
                     <FormItem label={'库存'} required>
                       {getFieldDecorator('stock', {
+                        rules: [{ required: true, message: '请输入库存' }],
                         initialValue: product.stock,
                       })(<IntegerInput className={styles.productNumberInput} placeholder="库存" />)}
                     </FormItem>
@@ -156,26 +147,23 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
 
                 <FormItem label={'销售属性'}>
                   {getFieldDecorator('skuProps', {
-                    initialValue: skuProps,
+                    initialValue: product.skuProps,
                   })(<ProductSkuPropInput />)}
                 </FormItem>
-
-                <FormItem label={'库存列表'}>
-                  {getFieldDecorator('skus', {
-                    initialValue: skus,
-                  })(<ProductSkuList skuProps={getFieldValue('skuProps')}/>)}
-                </FormItem>
-
+                {
+                  (getFieldValue('skuProps') && getFieldValue('skuProps').length > 0) && (
+                    <FormItem label={'库存列表'}>
+                      {getFieldDecorator('skus', {
+                        initialValue: product.skus,
+                      })(<ProductSkuList currency={currency} skuProps={getFieldValue('skuProps')}/>)}
+                    </FormItem>
+                  )
+                }
                 <FormItem label={'批发属性'}>
                   {getFieldDecorator('wholesales', {
                     initialValue: product.wholesales,
                   })(<ProductWholesalesInput />)}
                 </FormItem>
-                {
-                  getFieldDecorator('useWholesale', {
-                    initialValue: getFieldValue('wholesales') && getFieldValue('wholesales').length > 0 || false
-                  })
-                }
               </Card>
 
               <Card title={'图片管理'} {...cardProps}>
@@ -184,13 +172,6 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
                     initialValue: product.images,
                   })(<ProductImagesUpload />)}
                 </FormItem>
-                {product.skuProps && product.skuProps.length && (
-                  <FormItem label={'规格图片'}>
-                    {getFieldDecorator('skuProps[0].images', {
-                      initialValue: product.skuProps[0].images,
-                    })(<ProductPropImagesUpload />)}
-                  </FormItem>
-                )}
               </Card>
 
               <Card title={'运送'} {...cardProps}>
@@ -205,7 +186,24 @@ class ProductForm extends Component<ProductFormProp, ProductFormState> {
                   })(<DimensionInput />)}
                 </FormItem>
               </Card>
-              <Card title={'其他'} {...cardProps}></Card>
+              <Card title={'SEO'} {...cardProps}>
+                <FormItem label={'标题'}>
+                  {getFieldDecorator('title', {
+                    initialValue: product.title,
+                  })(<Input placeholder="title"/>)}
+                </FormItem>
+                <FormItem label={'关键字'}>
+                  {getFieldDecorator('keyword', {
+                    initialValue: product.keyword,
+                  })(<Input placeholder="keyword" />)}
+                </FormItem>
+                <FormItem label={'详情'}>
+                  {getFieldDecorator('description', {
+                    initialValue: product.description,
+                  })(<TextArea rows={2} placeholder="description" />)}
+                </FormItem>
+
+              </Card>
 
               <FormItem>
                 <Button className={styles.optionButton} onClick={(e) => this.handleCancel(e)}>取消</Button>
